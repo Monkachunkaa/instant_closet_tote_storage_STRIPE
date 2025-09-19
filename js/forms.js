@@ -71,8 +71,8 @@ function handleRegularFormSubmission(form, messageDiv, templateId) {
         name: formData.get('name'),
         email: formData.get('email'),
         phone: formData.get('phone'),
-        address: formData.get('address'),
-        tote_number: formData.get('tote_number'),
+        address: formData.get('address') || 'Not provided', // Optional for contact form
+        tote_number: formData.get('tote_number') || 'Not specified', // Optional for contact form
         message: formData.get('message') || 'No additional details provided',
         order_cost: orderCost > 0 ? `${orderCost}` : 'Not calculated'
     };
@@ -84,8 +84,10 @@ function handleRegularFormSubmission(form, messageDiv, templateId) {
             
             // Show success message
             const successMsg = templateId === 'ICTS_lead' 
-                ? '🎉 Thank you! Your request has been submitted successfully. We\'ll contact you within 24 hours to schedule your first delivery.'
-                : '🎉 Thank you! We\'ll contact you within 24 hours to schedule your first delivery.';
+                ? (formData.get('address') && formData.get('tote_number') 
+                    ? '🎉 Thank you! Your request has been submitted successfully. We\'ll contact you within 24 hours to schedule your first delivery.'
+                    : '🎉 Thank you! Your message has been submitted successfully. We\'ll contact you within 24 hours.')
+                : '🎉 Thank you! We\'ll contact you within 24 hours.';
             
             showMessage(messageDiv, successMsg, 'success');
             
