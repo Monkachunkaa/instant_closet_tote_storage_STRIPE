@@ -158,7 +158,14 @@ async function initializePaymentForm(orderData) {
         const data = await response.json();
         
         if (data.error) {
-            throw new Error(data.error);
+            // Handle specific error types
+            if (data.code === 'RATE_LIMIT_EXCEEDED') {
+                throw new Error('Too many payment attempts. Please wait a minute and try again.');
+            } else if (data.code === 'VALIDATION_ERROR') {
+                throw new Error(`Order validation failed: ${data.error}`);
+            } else {
+                throw new Error(data.error);
+            }
         }
 
         const clientSecret = data.client_secret;
