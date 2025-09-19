@@ -36,41 +36,61 @@ function initMobileMenu() {
  * Adds auto-focus functionality for buttons that link to the hero form
  * Handles: "Get Started" (navbar), "Start Storing Today", and "Ready to Get Started?" buttons
  * Features smart detection for gentle animations when already near the form
+ * Also handles cross-page navigation from contact.html to index.html#hero-form
  */
 function initSmoothScrollingWithFocus() {
     // Find all buttons that link to the hero form
-    const heroFormButtons = document.querySelectorAll('a[href="#hero-form"]');
+    const heroFormButtons = document.querySelectorAll('a[href="#hero-form"], a[href="index.html#hero-form"]');
+    
+    console.log(`🔍 Found ${heroFormButtons.length} hero form buttons on this page`);
     
     if (heroFormButtons.length > 0) {
         heroFormButtons.forEach((button, index) => {
+            const href = button.getAttribute('href');
+            const buttonText = button.textContent.trim();
+            console.log(`   ${index + 1}. "${buttonText}" button has href: "${href}"`);
+            
             button.addEventListener('click', function(e) {
-                e.preventDefault();
+                const href = this.getAttribute('href');
+                console.log(`🖱️ Clicked button with href: "${href}"`);
                 
-                // Get the target form container
-                const targetForm = document.querySelector('#hero-form');
-                
-                if (targetForm) {
-                    // Check if user is already near the form
-                    const isFormVisible = isElementInViewport(targetForm);
+                // Handle cross-page navigation (from contact.html to index.html)
+                if (href === 'index.html#hero-form') {
+                    console.log('🔄 Detected cross-page navigation - storing intent in sessionStorage');
+                    // Store focus intent in sessionStorage for the next page
+                    sessionStorage.setItem('focusHeroForm', 'true');
+                    sessionStorage.setItem('navigationSource', 'get-started-button');
                     
-                    if (isFormVisible) {
-                        // User is already near the form - use gentle animation
-                        handleGentleFormActivation(targetForm);
-                    } else {
-                        // User needs to scroll to form - use normal scroll behavior
-                        handleScrollToForm(targetForm);
+                    // Allow normal navigation to proceed
+                    console.log('🔄 Cross-page navigation to hero form initiated');
+                    return; // Let the browser handle the navigation
+                }
+                
+                // Handle same-page navigation (on index.html)
+                if (href === '#hero-form') {
+                    console.log('📍 Detected same-page navigation - preventing default and scrolling');
+                    e.preventDefault();
+                    
+                    // Get the target form container
+                    const targetForm = document.querySelector('#hero-form');
+                    
+                    if (targetForm) {
+                        // Check if user is already near the form
+                        const isFormVisible = isElementInViewport(targetForm);
+                        
+                        if (isFormVisible) {
+                            // User is already near the form - use gentle animation
+                            handleGentleFormActivation(targetForm);
+                        } else {
+                            // User needs to scroll to form - use normal scroll behavior
+                            handleScrollToForm(targetForm);
+                        }
                     }
                 }
             });
         });
         
         console.log(`✅ Enhanced navigation added to ${heroFormButtons.length} button(s) that link to hero form`);
-        
-        // Log which buttons were enhanced
-        heroFormButtons.forEach((button, index) => {
-            const buttonText = button.textContent.trim();
-            console.log(`   ${index + 1}. "${buttonText}" button`);
-        });
     }
 }
 
@@ -162,10 +182,62 @@ function focusFirstField() {
     }
 }
 
+/**
+ * Check if we should focus the hero form after page load
+ * This handles cross-page navigation from contact.html
+ */
+function checkForHeroFormFocus() {
+    console.log('🔍 Checking for cross-page navigation intent...');
+    
+    // Check if we should focus the hero form (from cross-page navigation)
+    const shouldFocusForm = sessionStorage.getItem('focusHeroForm');
+    const navigationSource = sessionStorage.getItem('navigationSource');
+    
+    console.log(`   shouldFocusForm: ${shouldFocusForm}`);
+    console.log(`   navigationSource: ${navigationSource}`);
+    
+    if (shouldFocusForm === 'true') {
+        console.log(`🎯 Cross-page navigation detected from ${navigationSource}`);
+        
+        // Clear the flags
+        sessionStorage.removeItem('focusHeroForm');
+        sessionStorage.removeItem('navigationSource');
+        console.log('🧹 Cleared sessionStorage flags');
+        
+        // Wait for page to fully load, then focus the form
+        setTimeout(() => {
+            const targetForm = document.querySelector('#hero-form');
+            if (targetForm) {
+                console.log('📜 Scrolling to form after cross-page navigation');
+                
+                // Scroll to form with a slightly longer delay for cross-page navigation
+                targetForm.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+                // Focus the first field after scroll completes
+                setTimeout(() => {
+                    focusFirstField();
+                }, 1000); // Slightly longer delay for cross-page navigation
+            } else {
+                console.error('❌ Hero form not found on page!');
+            }
+        }, 500); // Give the page time to fully render
+    } else {
+        console.log('ℹ️ No cross-page navigation intent found');
+    }
+}
+
 // Initialize all navigation functionality
 function initNavigation() {
     initMobileMenu();
     initSmoothScrollingWithFocus();
+    
+    // Check for cross-page form focus (only on index.html)
+    if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+        checkForHeroFormFocus();
+    }
 }
 
 // Initialize navigation on DOM load
