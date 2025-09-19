@@ -1,0 +1,23 @@
+[build]
+  # No build command needed for static site
+  command = "echo 'No build step required'"
+  # Publish the root directory
+  publish = "."
+
+[functions]
+  # Tell Netlify where our functions are located
+  directory = ".netlify/functions"
+
+[[headers]]
+  # Add CORS headers for all API routes
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Headers = "Content-Type"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+
+# Redirect rules for SPA-style routing (optional)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200

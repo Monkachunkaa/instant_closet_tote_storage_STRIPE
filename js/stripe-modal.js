@@ -133,6 +133,8 @@ async function initializePaymentForm(orderData) {
         paymentElementContainer.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">Loading payment form...</div>';
         
         // Call Netlify function to create real payment intent
+        console.log('🌐 Attempting to call:', '/.netlify/functions/create-payment-intent');
+        
         const response = await fetch('/.netlify/functions/create-payment-intent', {
             method: 'POST',
             headers: {
@@ -144,8 +146,13 @@ async function initializePaymentForm(orderData) {
             })
         });
 
+        console.log('📡 Response status:', response.status);
+        console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+
         if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
+            const errorText = await response.text();
+            console.error('📡 Response body:', errorText);
+            throw new Error(`Server error: ${response.status} - ${errorText}`);
         }
 
         const data = await response.json();
