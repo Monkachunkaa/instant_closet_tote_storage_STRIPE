@@ -1,118 +1,70 @@
 /**
  * STRIPE PAYMENT INTEGRATION - MAIN MODULE
- * Handles Stripe initialization and Stripe Checkout integration
- * Depends on: stripe-modal.js, stripe-handlers.js, pricing.js
+ * 
+ * This module handles Stripe initialization and order processing for the
+ * Instant Closet Tote Storage payment system. It uses Stripe Elements in
+ * setup mode for client-side payment form validation without requiring
+ * a server-side payment intent creation (demo mode).
+ * 
+ * Dependencies: stripe-modal.js, stripe-handlers.js, pricing.js, forms.js
+ * 
+ * @author Stripe Integration Team
+ * @version 1.0.0
  */
 
-// Stripe configuration
+// Stripe configuration - Your publishable key from Stripe dashboard
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51S97oj5Kox27LmidNTlRscpdkrwht2RJeriPo1ncNkAgVg4NPtVkecLWV9UZ8dBpulUR6h21BkAaKhGT1AazcpDD00T7kESfvJ';
 
-// Global Stripe variables
+// Global Stripe instance - initialized on page load
 let stripe = null;
-let currentOrderData = null;
 
 /**
  * Initialize Stripe on page load
+ * Creates the global Stripe instance using the publishable key
+ * @returns {boolean} True if initialization successful, false otherwise
  */
 function initializeStripe() {
     try {
-        // Initialize Stripe with your publishable key
         stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
-        console.log('Stripe initialized successfully');
+        console.log('✅ Stripe initialized successfully');
         return true;
     } catch (error) {
-        console.error('Failed to initialize Stripe:', error);
-        showPaymentError('Failed to load payment system. Please refresh and try again.');
+        console.error('❌ Failed to initialize Stripe:', error);
+        // Show error to user if showPaymentError function is available
+        if (typeof showPaymentError === 'function') {
+            showPaymentError('Failed to load payment system. Please refresh and try again.');
+        }
         return false;
     }
 }
 
 /**
- * Create a payment intent using a mock server endpoint
- * This simulates what would happen on your server
- * @param {Object} orderData - Order information
- * @returns {Promise<string>} Client secret
- */
-async function createPaymentIntent(orderData) {
-    try {
-        // This simulates a server call that would create a payment intent
-        // In production, this would be a real API call to your server
-        
-        console.log('Creating payment intent for:', orderData);
-        
-        // Simulate server processing delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // For demo purposes, we'll create a properly formatted mock client secret
-        // This mimics the format that Stripe uses: pi_[id]_secret_[secret]
-        const paymentIntentId = `pi_demo_${Date.now()}`;
-        const secretPart = Math.random().toString(36).substr(2, 24); // 24 char secret
-        const mockClientSecret = `${paymentIntentId}_secret_${secretPart}`;
-        
-        console.log('Mock payment intent created with client secret:', mockClientSecret);
-        
-        return mockClientSecret;
-        
-    } catch (error) {
-        console.error('Error creating payment intent:', error);
-        throw new Error('Failed to create payment intent');
-    }
-}
-
-/**
- * Create Stripe Elements with payment intent
- * @param {Object} orderData - Order information
- * @returns {Promise<Object>} Stripe Elements instance
- */
-async function createPaymentElements(orderData) {
-    try {
-        // Create payment intent (simulated)
-        const clientSecret = await createPaymentIntent(orderData);
-        
-        // Create elements instance with the client secret
-        const elements = stripe.elements({
-            clientSecret: clientSecret,
-            appearance: {
-                theme: 'stripe',
-                variables: {
-                    colorPrimary: '#F8CF1F',
-                    colorBackground: '#ffffff',
-                    colorText: '#30313d',
-                    colorDanger: '#df1b41',
-                    fontFamily: 'Source Sans Pro, system-ui, sans-serif',
-                    spacingUnit: '4px',
-                    borderRadius: '8px'
-                }
-            }
-        });
-        
-        return { elements, clientSecret };
-        
-    } catch (error) {
-        console.error('Error creating payment elements:', error);
-        throw error;
-    }
-}
-
-/**
- * Process form submission and show payment modal
- * This function replaces the original form submission in forms.js
- * @param {HTMLFormElement} form - The form element
- * @param {HTMLElement} messageDiv - Message display element
+ * Process order form submission and show payment modal
+ * 
+ * This function is called when the hero form is submitted. It validates
+ * the form data, calculates the total cost, and opens the payment modal.
+ * This replaces the original EmailJS submission for the order form.
+ * 
+ * @param {HTMLFormElement} form - The form element that was submitted
+ * @param {HTMLElement} messageDiv - Element to display error messages
  */
 function processOrderSubmission(form, messageDiv) {
-    // Get form data
+    console.log('🚀 Processing order submission...');
+    
+    // Extract form data
     const formData = new FormData(form);
     
-    // Get calculated cost from pricing.js
+    // Calculate total cost using pricing.js function
     const totalCost = getOrderCost ? getOrderCost(form) : 0;
     
+    // Validate cost calculation
     if (totalCost <= 0) {
+        console.warn('⚠️ Invalid cost calculation:', totalCost);
         showMessage(messageDiv, '❌ Please enter a valid number of totes (2-10) to calculate cost.', 'error');
         return;
     }
     
-    // Prepare order data
+    // Create order data object
     const orderData = {
         name: formData.get('name'),
         email: formData.get('email'),
@@ -122,36 +74,45 @@ function processOrderSubmission(form, messageDiv) {
         totalCost: totalCost
     };
     
-    // Validate required fields
-    if (!orderData.name || !orderData.email || !orderData.phone || !orderData.address || !orderData.toteNumber) {
+    // Validate all required fields are present
+    if (!orderData.name || !orderData.email || !orderData.phone || 
+        !orderData.address || !orderData.toteNumber) {
+        console.warn('⚠️ Missing required fields:', orderData);
         showMessage(messageDiv, '❌ Please fill in all required fields.', 'error');
         return;
     }
     
-    // Store current order data
-    currentOrderData = orderData;
+    console.log('✅ Order validation passed:', orderData);
     
-    // Show payment modal (defined in stripe-modal.js)
+    // Open payment modal (function defined in stripe-modal.js)
     showPaymentModal(orderData);
 }
 
 /**
- * Initialize payment system
+ * Initialize the payment system
+ * 
+ * Called when the DOM is loaded. Sets up Stripe and initializes
+ * all necessary event listeners for the payment modal.
  */
 function initializePaymentSystem() {
-    // Initialize Stripe
+    console.log('🔧 Initializing payment system...');
+    
+    // Initialize Stripe first
     const stripeReady = initializeStripe();
     
     if (stripeReady) {
-        // Initialize modal event listeners (defined in stripe-modal.js)
-        initializeModalEventListeners();
-        console.log('Payment system initialized successfully');
+        // Initialize modal event listeners (function defined in stripe-modal.js)
+        if (typeof initializeModalEventListeners === 'function') {
+            initializeModalEventListeners();
+        }
+        console.log('✅ Payment system initialized successfully');
+    } else {
+        console.error('❌ Payment system initialization failed');
     }
 }
 
-// Initialize when DOM is loaded
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initializePaymentSystem);
 
-// Export functions for global access
+// Export functions to global scope for use by other modules
 window.processOrderSubmission = processOrderSubmission;
-window.createPaymentElements = createPaymentElements;

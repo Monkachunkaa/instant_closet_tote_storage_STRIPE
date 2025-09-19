@@ -1,0 +1,20 @@
+{
+  "name": "instant-closet-tote-storage-functions",
+  "version": "1.0.0",
+  "description": "Netlify functions for Stripe payment processing",
+  "main": "index.js",
+  "dependencies": {
+    "stripe": "^14.0.0"
+  },
+  "scripts": {
+    "build": "echo 'No build step required'"
+  },
+  "keywords": [
+    "stripe",
+    "payments",
+    "netlify",
+    "serverless"
+  ],
+  "author": "Instant Closet Tote Storage",
+  "license": "MIT"
+}

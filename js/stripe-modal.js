@@ -1,23 +1,31 @@
 /**
  * STRIPE PAYMENT MODAL
- * Handles payment modal display, order summary, and modal interactions
- * Depends on: stripe-payment.js
+ * 
+ * This module handles the payment modal display, order summary presentation,
+ * and Stripe Elements initialization. It creates a professional payment
+ * interface using real Stripe payment intents via Netlify functions.
+ * 
+ * Dependencies: stripe-payment.js, stripe-handlers.js
+ * 
+ * @author Stripe Integration Team
+ * @version 2.0.0 - Now with real payment intent integration
  */
 
 /**
- * Show payment error message
- * @param {string} message - Error message to display
+ * Display error message in the payment modal
+ * @param {string} message - Error message to display to user
  */
 function showPaymentError(message) {
     const errorElement = document.getElementById('payment-errors');
     if (errorElement) {
         errorElement.textContent = message;
         errorElement.classList.add('show');
+        console.warn('⚠️ Payment Error:', message);
     }
 }
 
 /**
- * Hide payment error message
+ * Hide any displayed payment error messages
  */
 function hidePaymentError() {
     const errorElement = document.getElementById('payment-errors');
@@ -28,23 +36,34 @@ function hidePaymentError() {
 }
 
 /**
- * Show the payment modal with order details
- * @param {Object} orderData - Order information from the form
+ * Show the payment modal with customer order details
+ * 
+ * Displays order summary and initializes Stripe Elements for payment processing.
+ * Now uses real payment intents for actual payment processing.
+ * 
+ * @param {Object} orderData - Customer order information
+ * @param {string} orderData.name - Customer name
+ * @param {string} orderData.email - Customer email
+ * @param {string} orderData.phone - Customer phone
+ * @param {string} orderData.address - Customer address
+ * @param {number} orderData.toteNumber - Number of totes ordered
+ * @param {number} orderData.totalCost - Total cost in dollars
  */
 async function showPaymentModal(orderData) {
+    console.log('💳 Opening payment modal for order:', orderData);
+    
+    // Get modal elements
     const modal = document.getElementById('payment-modal');
     const orderDetails = document.getElementById('order-details');
     const totalAmount = document.getElementById('total-amount');
     
+    // Validate required DOM elements exist
     if (!modal || !orderDetails || !totalAmount) {
-        console.error('Payment modal elements not found');
+        console.error('❌ Payment modal elements not found in DOM');
         return;
     }
     
-    // Calculate total cost
-    const cost = orderData.totalCost;
-    
-    // Update order summary
+    // Build order summary HTML
     orderDetails.innerHTML = `
         <div class="order-detail-item">
             <span class="order-detail-label">Customer:</span>
@@ -68,139 +87,194 @@ async function showPaymentModal(orderData) {
         </div>
         <div class="order-detail-item">
             <span class="order-detail-label">Setup Cost:</span>
-            <span class="order-detail-value">${cost} ($20 trip fee + ${orderData.toteNumber * 10} first month)</span>
+            <span class="order-detail-value">$${orderData.totalCost} ($20 trip fee + $${orderData.toteNumber * 10} first month)</span>
         </div>
     `;
     
-    totalAmount.textContent = `${cost}`;
+    // Update total amount display
+    totalAmount.textContent = `$${orderData.totalCost}`;
     
-    // Show modal with animation
+    // Show modal with CSS animation
     modal.style.display = 'flex';
     
-    // Initialize Stripe Elements for this payment
+    // Initialize Stripe payment form with real payment intent
     await initializePaymentForm(orderData);
 }
 
 /**
- * Initialize payment form with proper Stripe Elements
- * @param {Object} orderData - Order information
+ * Initialize Stripe Elements payment form with real payment intent
+ * 
+ * Creates a real Stripe payment intent via Netlify function, then
+ * initializes Stripe Elements with the returned client secret.
+ * This enables real payment processing instead of demo simulation.
+ * 
+ * @param {Object} orderData - Customer order information
  */
 async function initializePaymentForm(orderData) {
+    // Validate Stripe is initialized
     if (typeof stripe === 'undefined' || !stripe) {
-        console.error('Stripe not initialized');
+        console.error('❌ Stripe not initialized');
         showPaymentError('Payment system not loaded. Please refresh and try again.');
         return;
     }
     
+    // Get payment element container
     const paymentElementContainer = document.getElementById('payment-element');
     if (!paymentElementContainer) {
-        console.error('Payment element container not found');
+        console.error('❌ Payment element container not found in DOM');
         showPaymentError('Payment form container not found. Please refresh and try again.');
         return;
     }
     
     try {
-        console.log('Initializing payment form for order:', orderData);
+        console.log('🔧 Creating real payment intent on server...');
         
-        // Clear any existing content
+        // Show loading message while creating payment intent
+        paymentElementContainer.innerHTML = '<div style="padding: 1rem; text-align: center; color: #666;">Loading payment form...</div>';
+        
+        // Call Netlify function to create real payment intent
+        const response = await fetch('/.netlify/functions/create-payment-intent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                amount: orderData.totalCost * 100, // Convert to cents
+                orderData: orderData
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        const clientSecret = data.client_secret;
+        console.log('✅ Payment intent created, initializing Stripe Elements...');
+
+        // Clear loading message
         paymentElementContainer.innerHTML = '';
-        
-        // For demo purposes, let's use a simpler approach that works client-side
-        // We'll create elements in setup mode which doesn't require a payment intent
+
+        // Create Stripe Elements with real client secret
         const elements = stripe.elements({
-            mode: 'setup',
-            currency: 'usd',
-            setup_future_usage: 'off_session',
+            clientSecret: clientSecret,
             appearance: {
                 theme: 'stripe',
                 variables: {
-                    colorPrimary: '#F8CF1F',
-                    colorBackground: '#ffffff',
-                    colorText: '#30313d',
-                    colorDanger: '#df1b41',
+                    colorPrimary: '#F8CF1F',      // Brand yellow
+                    colorBackground: '#ffffff',    // White background
+                    colorText: '#30313d',         // Dark text
+                    colorDanger: '#df1b41',       // Red for errors
                     fontFamily: 'Source Sans Pro, system-ui, sans-serif',
                     spacingUnit: '4px',
                     borderRadius: '8px'
                 }
             }
         });
-        
+
         // Create and mount payment element
         const paymentElement = elements.create('payment');
         
-        console.log('Mounting payment element...');
+        console.log('📦 Mounting payment element to DOM...');
         paymentElement.mount('#payment-element');
-        
-        // Store elements globally for payment processing
+
+        // Store references globally for payment processing
         window.currentElements = elements;
         window.currentPaymentElement = paymentElement;
-        window.currentOrderData = orderData; // Store order data globally
-        
-        // Handle payment element events
+        window.currentClientSecret = clientSecret;
+        window.currentOrderData = orderData;
+
+        // Set up event listeners for payment element
         paymentElement.on('ready', () => {
-            console.log('Payment element ready and mounted successfully');
+            console.log('✅ Payment element ready with REAL Stripe integration!');
         });
-        
+
         paymentElement.on('change', (event) => {
             if (event.error) {
-                console.error('Payment element error:', event.error);
+                console.error('⚠️ Payment element validation error:', event.error);
                 showPaymentError(event.error.message);
             } else {
+                // Clear any previous errors when user fixes input
                 hidePaymentError();
             }
         });
-        
-        console.log('Payment form initialization completed');
+
+        console.log('✅ Real payment form initialization completed');
         
     } catch (error) {
-        console.error('Error initializing payment form:', error);
+        console.error('❌ Error initializing real payment form:', error);
         showPaymentError('Failed to load payment form. Please try again.');
         
-        // Fallback: show a message in the payment element container
+        // Fallback error message for user
         paymentElementContainer.innerHTML = `
             <div style="padding: 1rem; text-align: center; color: #666;">
                 <p>Payment form failed to load. Please refresh the page and try again.</p>
-                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Error: ${error.message}</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem; color: #999;">Error: ${error.message}</p>
+                <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #F8CF1F; border: none; border-radius: 5px; cursor: pointer;">Refresh Page</button>
             </div>
         `;
     }
 }
 
 /**
- * Close the payment modal
+ * Close the payment modal and clean up
+ * 
+ * Hides the modal, destroys Stripe elements, and resets the modal
+ * content for future use.
  */
 function closePaymentModal() {
+    console.log('🚪 Closing payment modal...');
+    
     const modal = document.getElementById('payment-modal');
     if (modal) {
         modal.style.display = 'none';
     }
     
-    // Reset global order data
-    if (typeof currentOrderData !== 'undefined') {
-        currentOrderData = null;
+    // Clean up Stripe elements to prevent memory leaks
+    if (typeof window.currentPaymentElement !== 'undefined' && window.currentPaymentElement) {
+        window.currentPaymentElement.destroy();
+        window.currentPaymentElement = null;
     }
     
-    // Clean up Stripe elements
-    if (typeof paymentElement !== 'undefined' && paymentElement) {
-        paymentElement.destroy();
-        paymentElement = null;
+    if (typeof window.currentElements !== 'undefined' && window.currentElements) {
+        window.currentElements = null;
     }
-    if (typeof elements !== 'undefined' && elements) {
-        elements = null;
+    
+    // Clear order data and client secret
+    if (typeof window.currentOrderData !== 'undefined') {
+        window.currentOrderData = null;
+    }
+    
+    if (typeof window.currentClientSecret !== 'undefined') {
+        window.currentClientSecret = null;
     }
     
     // Reset modal content for next use
     resetModalContent();
+    
+    console.log('✅ Payment modal closed and cleaned up');
 }
 
 /**
  * Reset modal content to original state
+ * 
+ * Restores the modal HTML to its initial state and re-attaches
+ * event listeners for future use.
  */
 function resetModalContent() {
     const modalBody = document.querySelector('.payment-modal-body');
     
-    if (!modalBody) return;
+    if (!modalBody) {
+        console.warn('⚠️ Modal body not found for reset');
+        return;
+    }
     
+    // Restore original modal HTML structure
     modalBody.innerHTML = `
         <div class="order-summary">
             <h4>Order Summary</h4>
@@ -221,18 +295,27 @@ function resetModalContent() {
         </div>
     `;
     
-    // Re-attach event listeners
+    // Re-attach event listeners for the reset modal
     initializeModalEventListeners();
 }
 
 /**
- * Show payment success message
+ * Display payment success confirmation
+ * 
+ * Replaces the payment form with a success message and instructions
+ * for the customer.
  */
 function showPaymentSuccess() {
+    console.log('🎉 Displaying payment success message');
+    
     const modalBody = document.querySelector('.payment-modal-body');
     
-    if (!modalBody) return;
+    if (!modalBody) {
+        console.warn('⚠️ Modal body not found for success display');
+        return;
+    }
     
+    // Replace modal content with success message
     modalBody.innerHTML = `
         <div class="payment-success">
             <div class="success-icon">✓</div>
@@ -245,10 +328,13 @@ function showPaymentSuccess() {
 }
 
 /**
- * Initialize modal event listeners
+ * Initialize all modal event listeners
+ * 
+ * Sets up click handlers for modal close, payment submission,
+ * and outside-click-to-close functionality.
  */
 function initializeModalEventListeners() {
-    // Close button
+    // Close button (X) in modal header
     const closeBtn = document.querySelector('.payment-modal-close');
     if (closeBtn) {
         closeBtn.onclick = closePaymentModal;
@@ -257,21 +343,24 @@ function initializeModalEventListeners() {
     // Payment submit button
     const submitBtn = document.getElementById('payment-submit');
     if (submitBtn) {
-        submitBtn.onclick = handlePaymentSubmission;
+        submitBtn.onclick = handlePaymentSubmission; // Function from stripe-handlers.js
     }
     
-    // Close modal when clicking outside
+    // Close modal when clicking outside the modal content
     const modal = document.getElementById('payment-modal');
     if (modal) {
         modal.onclick = function(event) {
+            // Only close if clicking the modal backdrop, not the content
             if (event.target === modal) {
                 closePaymentModal();
             }
         };
     }
+    
+    console.log('✅ Modal event listeners initialized');
 }
 
-// Export functions for global access
+// Export functions to global scope for use by other modules
 window.showPaymentModal = showPaymentModal;
 window.closePaymentModal = closePaymentModal;
 window.showPaymentSuccess = showPaymentSuccess;
