@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#F8CF1F">
+    <meta name="msapplication-TileColor" content="#F8CF1F">
+    <meta name="description" content="Professional tote storage solutions delivered to your door. $10/month per 27-gallon tote, free delivery & pickup. Perfect for apartment living & seasonal storage.">
+    <title>Instant Closet Tote Storage - Convenient Storage Solutions</title>
+    
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-852XZPL8Q1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-852XZPL8Q1');
+    </script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    
+    <!-- Stripe SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/webp" sizes="32x32" href="images/favicon.webp">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon.png">
+    <link rel="icon" type="image/webp" sizes="16x16" href="images/favicon.webp">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon.png">
+    <link rel="shortcut icon" href="images/favicon.png">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- LocalBusiness Schema Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "@id": "https://www.instantclosettotestorage.com",
+      "name": "Instant Closet Tote Storage",
+      "description": "Professional tote storage solutions delivered to your door. 27-gallon storage totes with free delivery and pickup service.",
+      "url": "https://www.instantclosettotestorage.com",
+      "telephone": "(828) 455-7793",
+      "alternatePhone": "(855) 858-6837",
+      "email": "customerservice@instantclosettotestorage.com",
+      "priceRange": "$10 per month",
+      "currenciesAccepted": "USD",
+      "paymentAccepted": "Cash, Credit Card, Check",
+      "category": "Storage Service",
+      "serviceType": "Storage Solutions",
+      "areaServed": {
+        "@type": "Place",
+        "name": "Catawba County, NC and surrounding areas",
+        "address": {
+          "@type": "PostalAddress",
+          "addressRegion": "NC",
+          "addressCountry": "US"
+        }
+      },
+      "serviceArea": {
+        "@type": "GeoCircle",
+        "geoMidpoint": {
+          "@type": "GeoCoordinates",
+          "latitude": 35.7344,
+          "longitude": -81.2489
+        },
+        "geoRadius": "50000"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Storage Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Tote Storage and Delivery Service",
+              "description": "27-gallon storage totes with free delivery, pickup, and secure storage",
+              "provider": {
+                "@type": "LocalBusiness",
+                "name": "Instant Closet Tote Storage"
+              }
+            },
+            "price": "10",
+            "priceCurrency": "USD",
+            "priceSpecification": {
+              "@type": "PriceSpecification",
+              "price": "10",
+              "priceCurrency": "USD",
+              "unitText": "per month per tote"
+            }
+          }
+        ]
+      },
+      "offers": {
+        "@type": "Offer",
+        "name": "Tote Storage Service",
+        "description": "Professional storage service with delivery and pickup",
+        "price": "10",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock",
+        "validFrom": "2025-01-01"
+      },
+      "additionalProperty": [
+        {
+          "@type": "PropertyValue",
+          "name": "Minimum Order",
+          "value": "2 totes"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Storage Capacity",
+          "value": "27 gallons per tote"
+        },
+        {
+          "@type": "PropertyValue",
+          "name": "Delivery Fee",
+          "value": "$10 trip fee"
+        }
+      ],
+      "makesOffer": {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Free Delivery and Pickup",
+          "description": "Complimentary tote delivery and pickup service"
+        },
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "slogan": "Storage Made Simple",
+      "knowsAbout": [
+        "Storage Solutions",
+        "Apartment Storage",
+        "Seasonal Storage",
+        "Holiday Decoration Storage",
+        "Tote Storage",
+        "Self Storage Alternative"
+      ]
+    }
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="index.html">
+                <picture>
+                    <source srcset="images/logo.webp" type="image/webp">
+                    <img src="images/logo.png" alt="Instant Closet Tote Storage" class="logo">
+                </picture>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#services">Services</a></li>
+                <li><a href="#expect">What to Expect</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="contact.html?focus=form" class="nav-cta">Contact Us</a></li>
+            </ul>
+            <button class="mobile-menu-btn">☰</button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-left">
+                <h1>Storage Made <span class="highlight">Simple</span></h1>
+                <p class="subtitle">Professional tote storage solutions delivered to your door. Perfect for apartment living, seasonal storage needs, or just freeing up some extra space.</p>
+                <div class="cta-buttons">
+                    <a href="tel:8284557793" class="btn btn-primary">Call Now</a>
+                    <a href="contact.html?focus=form" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="hero-form">
+                    <h3>Get Started Today</h3>
+                    <div id="hero-form-message"></div>
+                    <form id="hero-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <input type="text" id="hero-name" name="name" placeholder="Name" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="tel" id="hero-phone" name="phone" placeholder="Phone" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="email" id="hero-email" name="email" placeholder="Email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" id="hero-address" name="address" placeholder="Address (Street, City, State)" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="number" id="hero-tote_number" name="tote_number" min="2" max="10" placeholder="Number of Totes Needed (minimum of 2)" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.8rem;">Submit Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="section services">
+        <div class="container">
+            <h2 class="section-title">Our Storage Services</h2>
+            <div class="text-center" style="margin-bottom: 2rem;">
+                <img src="images/tote.webp" alt="Storage tote" style="width: 360px; height: auto; max-width: 100%;">
+            </div>
+            <p class="section-subtitle">We provide convenient, professional storage solutions with 27-gallon totes delivered right to your door.</p>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🚚</div>
+                    <h3>Free Delivery & Pickup</h3>
+                    <p>We bring empty totes to you and pick them up once filled. When you need your items back, we deliver them to your door.</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">📦</div>
+                    <h3>27-Gallon Storage Totes</h3>
+                    <p>Durable, weather-resistant storage totes perfect for seasonal items, holiday decorations, clothing, and keepsakes.</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">🏠</div>
+                    <h3>Perfect for Apartment Living</h3>
+                    <p>Maximize your living space without the hassle of traditional storage units. No trips to storage facilities required.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What to Expect Section -->
+    <section id="expect" class="section expect">
+        <div class="container">
+            <h2 class="section-title">What to Expect</h2>
+            <p class="section-subtitle">Our simple 4-step process makes storage effortless</p>
+            
+            <ul class="timeline">
+                <!-- Step 1 -->
+                <li>
+                    <div class="direction-r">
+                        <div class="flag-wrapper">
+                            <div class="flag">
+                                <span class="step-number">1</span>
+                                <strong>Contact Us</strong>
+                            </div>
+                        </div>
+                        <div class="step-desc">Call or text to schedule your initial delivery. Minimum 2 totes to get started.</div>
+                    </div>
+                </li>
+                
+                <!-- Step 2 -->
+                <li>
+                    <div class="direction-l">
+                        <div class="flag-wrapper">
+                            <div class="flag">
+                                <span class="step-number">2</span>
+                                <strong>Delivery</strong>
+                            </div>
+                        </div>
+                        <div class="step-desc">We deliver empty totes to your location. Fill them with your storage items at your convenience.</div>
+                    </div>
+                </li>
+                
+                <!-- Step 3 -->
+                <li>
+                    <div class="direction-r">
+                        <div class="flag-wrapper">
+                            <div class="flag">
+                                <span class="step-number">3</span>
+                                <strong>Pickup</strong>
+                            </div>
+                        </div>
+                        <div class="step-desc">Once filled, we pick up your totes and store them in our secure facility.</div>
+                    </div>
+                </li>
+                
+                <!-- Step 4 -->
+                <li>
+                    <div class="direction-l">
+                        <div class="flag-wrapper">
+                            <div class="flag">
+                                <span class="step-number">4</span>
+                                <strong>Return</strong>
+                            </div>
+                        </div>
+                        <div class="step-desc">Need your items? We'll deliver your totes back to you whenever you need them.</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="section pricing">
+        <div class="container">
+            <h2 class="section-title">Simple, Transparent Pricing</h2>
+            <p class="section-subtitle">No hidden fees, no long-term contracts. Pay only for what you need.</p>
+            
+            <div class="pricing-card">
+                <div class="pricing-badge">Simple Pricing</div>
+                
+                <div class="pricing-item">
+                    <div class="price">$10</div>
+                    <p class="price-subtitle">per month per tote</p>
+                </div>
+                
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
+                    <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 0.5rem;">$10 trip fee</p>
+                    <p style="color: var(--text-light); font-size: 0.9rem;">2 tote minimum</p>
+                </div>
+                
+                <a href="contact.html?focus=form" class="btn btn-primary" style="margin-top: 2rem;">Start Storing Today</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="section faq">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Everything you need to know about our storage service</p>
+            
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>How does the pickup and delivery process work?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We deliver empty totes directly to your door (minimum 2 totes, no maximum). Once you've filled them with your items, we pick them up and store them in our secure facility. When you need your items back, we deliver them right to your door again.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Do I need a truck or vehicle to use your service?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 250px;">
+                                <p>No trucks needed! That's the beauty of our service. We handle all transportation with our delivery vehicles. You don't need to worry about renting trucks, making trips to storage facilities, or fitting large items in your car. If you prefer, you can also drop your totes off yourself at our facility to avoid the delivery fee and save significantly compared to renting an entire storage locker.</p>
+                            </div>
+                            <div style="flex-shrink: 0; display: flex; justify-content: center;" class="faq-image-container">
+                                <img src="images/truck.webp" alt="Delivery truck" style="width: 360px; height: auto;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Will I have to do any heavy lifting?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No lifting required on your part! Our team handles all the heavy lifting during pickup and delivery. You simply pack your items into the totes at your convenience, and we take care of the rest. No hurt backs or strain!</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>How do I know my items are secure?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We provide metal security seals for each side of every tote. Once you've packed your items and are ready for pickup, you seal both sides of the tote yourself. Each seal has a private identifier to ensure your totes are never mixed up with others. This ensures your tote is never opened at any point during storage, and all your items remain fully secured and tamper-proof.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What are the size and capacity of your totes?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 250px;">
+                                <p>Our storage totes are 27-gallon capacity, durable, and weather-resistant. They're perfect for storing seasonal items, holiday decorations, clothing, keepsakes, and other household items. Each tote is designed to protect your belongings during transport and storage.</p>
+                            </div>
+                            <div style="flex-shrink: 0; display: flex; justify-content: center;" class="faq-image-container">
+                                <img src="images/tote_dimensions.webp" alt="Tote dimensions" style="width: 360px; height: auto;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What's the minimum and maximum number of totes I can store?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>The minimum is 2 totes to get started, but there's no maximum limit! Whether you need 2 totes or 20, we can accommodate your storage needs. Our pricing is simple at $10 per tote per month.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>How much does the service cost?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Our pricing is simple and transparent: $10 per tote per month for ongoing storage. Getting started costs $40 minimum (2 totes) which includes your first month of storage plus your first two $10 trip fees.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What items can I store?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>You can store most household items including seasonal decorations, clothing, keepsakes, books, small furniture pieces, and personal belongings. Items should fit within the 27-gallon tote capacity. Please contact us if you have questions about specific items.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>How do I schedule pickup and delivery?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                            <div style="flex: 1; min-width: 250px;">
+                                <p>Simply call or text us at (828) 455-7793 or (855) 85-TOTES to schedule your service. You can also fill out our contact form, and we'll get back to you within 24 hours to arrange your first delivery and confirm all details.</p>
+                            </div>
+                            <div style="flex-shrink: 0; display: flex; justify-content: center;" class="faq-image-container">
+                                <img src="images/contact_us_image.webp" alt="Contact us" style="width: 180px; height: auto;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What areas do you serve?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We provide delivery and pickup services throughout the local area. Contact us to confirm service availability in your specific location. We're always expanding our service area to better serve our customers.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Do you offer franchise opportunities?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Yes! We're always looking for motivated entrepreneurs to join our growing network. If you're interested in owning an Instant Closet Tote Storage franchise in your area, please call us at (828) 455-7793 or (855) 85-TOTES and press option 3 for detailed franchise information and requirements.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center" style="margin-top: 3rem;">
+                <a href="contact.html?focus=form" class="btn btn-primary" style="font-size: 1.1rem; padding: 1.2rem 2.5rem;">Ready to Get Started?</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-contact">
+                <a href="mailto:customerservice@instantclosettotestorage.com">customerservice@instantclosettotestorage.com</a>
+                <div class="phone-numbers">
+                    <span>
+                        <a href="tel:8284557793">(828) 455-7793</a>
+                        <span class="phone-options">
+                            (<a href="tel:8284557793">Call</a> or <a href="sms:8284557793">Text</a>)
+                        </span>
+                    </span>
+                    <span>
+                        <a href="tel:8558586837">(855) 85-TOTES</a>
+                        <span class="phone-options">
+                            (<a href="tel:8558586837">Call</a> or <a href="sms:8558586837">Text</a>)
+                        </span>
+                    </span>
+                </div>
+            </div>
+            <p>&copy; 2025 Instant Closet Tote Storage. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="payment-modal" style="display: none;">
+        <div class="payment-modal-content">
+            <div class="payment-modal-header">
+                <h3>Complete Your Order</h3>
+                <span class="payment-modal-close">&times;</span>
+            </div>
+            <div class="payment-modal-body">
+                <div class="order-summary">
+                    <h4>Order Summary</h4>
+                    <div id="order-details"></div>
+                    <div class="total-cost">
+                        <strong>Total: <span id="total-amount">$0</span></strong>
+                    </div>
+                </div>
+                <div class="payment-form">
+                    <div id="payment-element">
+                        <!-- Stripe Elements will create form elements here -->
+                    </div>
+                    <div id="payment-errors" role="alert"></div>
+                    <button id="payment-submit" class="btn btn-primary payment-submit-btn">
+                        <div class="spinner hidden" id="payment-spinner"></div>
+                        <span id="payment-button-text">Complete Payment</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/main.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/pricing.js"></script>
+    <script src="js/forms.js"></script>
+    <script src="js/stripe-payment.js"></script>
+    <script src="js/stripe-modal.js"></script>
+    <script src="js/stripe-handlers.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

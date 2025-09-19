@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.instantclosettotestorage.com/sitemap.xml
+
+# Block crawling of any admin or private directories (if they exist in the future)
+Disallow: /admin/
+Disallow: /private/
