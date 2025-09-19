@@ -34,7 +34,7 @@ function handleFormSubmission(form, messageDiv, templateId) {
         clearMessage(messageDiv);
         
         // Check if this is the hero form (order form) that should use Stripe
-        if (form.id === 'hero-form') {
+        if (form.id === 'hero-contact-form') {
             // Use Stripe payment flow for hero form
             if (typeof processOrderSubmission === 'function') {
                 processOrderSubmission(form, messageDiv);
@@ -120,7 +120,7 @@ function initFormErrorClearing(form, messageDiv) {
 
 // Initialize hero form (on index page)
 function initHeroForm() {
-    const heroForm = document.querySelector('#hero-form');
+    const heroForm = document.querySelector('#hero-contact-form');
     const heroMessageDiv = document.getElementById('hero-form-message');
     
     if (heroForm && heroMessageDiv) {

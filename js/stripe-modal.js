@@ -191,8 +191,10 @@ async function initializePaymentForm(orderData) {
             }
         });
 
-        // Create and mount payment element
-        const paymentElement = elements.create('payment');
+        // Create and mount payment element with specific payment methods
+        const paymentElement = elements.create('payment', {
+            paymentMethodTypes: ['card', 'apple_pay', 'google_pay']
+        });
         
         console.log('📦 Mounting payment element to DOM...');
         paymentElement.mount('#payment-element');

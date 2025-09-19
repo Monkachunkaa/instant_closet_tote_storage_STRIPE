@@ -24,8 +24,14 @@ function checkWebPSupport() {
 }
 
 // Smooth scrolling for navigation links (only for same-page links)
+// Excludes links that have enhanced behavior in navigation.js
 function initSmoothScrolling() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        // Skip buttons that link to the hero form - they have enhanced behavior in navigation.js
+        if (anchor.getAttribute('href') === '#hero-form') {
+            return; // Skip this link, let navigation.js handle it with focus enhancement
+        }
+        
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
