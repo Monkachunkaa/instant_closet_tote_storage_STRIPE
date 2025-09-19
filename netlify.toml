@@ -8,13 +8,76 @@
   # Tell Netlify where our functions are located
   directory = ".netlify/functions"
 
+# Security Headers for all pages
 [[headers]]
-  # Add CORS headers for all API routes
+  for = "/*"
+  [headers.values]
+    # Content Security Policy - Prevents XSS and injection attacks
+    Content-Security-Policy = """
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 
+        https://www.googletagmanager.com 
+        https://www.google-analytics.com 
+        https://js.stripe.com 
+        https://cdn.jsdelivr.net 
+        https://cdnjs.cloudflare.com;
+      style-src 'self' 'unsafe-inline' 
+        https://fonts.googleapis.com;
+      font-src 'self' 
+        https://fonts.gstatic.com;
+      img-src 'self' data: 
+        https://www.google-analytics.com 
+        https://www.googletagmanager.com;
+      connect-src 'self' 
+        https://www.google-analytics.com 
+        https://api.stripe.com 
+        https://*.netlify.app 
+        https://api.emailjs.com;
+      frame-src 
+        https://js.stripe.com;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self' 
+        https://formspree.io 
+        https://api.emailjs.com;
+      upgrade-insecure-requests;
+    """
+    
+    # Additional Security Headers
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff" 
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    
+    # HSTS - Force HTTPS (only add if you're sure about HTTPS)
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+
+# API Function Headers with CORS
+[[headers]]
   for = "/.netlify/functions/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Content-Type"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    # Relaxed CSP for API endpoints
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; object-src 'none';"
+
+# Static Asset Caching
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 # Redirect rules for SPA-style routing (optional)
 [[redirects]]
