@@ -82,7 +82,23 @@ function processOrderSubmission(form, messageDiv) {
         return;
     }
     
+    // Track form submission in analytics
+    if (window.AnalyticsTracker) {
+        window.AnalyticsTracker.trackFormSubmission('hero', {
+            tote_number: orderData.toteNumber,
+            address: orderData.address
+        });
+    }
+    
     console.log('✅ Order validation passed:', orderData);
+    
+    // Track form submission in analytics
+    if (window.AnalyticsTracker) {
+        window.AnalyticsTracker.trackFormSubmission('hero', {
+            tote_number: orderData.toteNumber,
+            address: orderData.address
+        });
+    }
     
     // Open payment modal (function defined in stripe-modal.js)
     showPaymentModal(orderData);

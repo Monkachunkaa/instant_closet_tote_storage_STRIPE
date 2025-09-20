@@ -52,6 +52,11 @@ function hidePaymentError() {
 async function showPaymentModal(orderData) {
     console.log('💳 Opening payment modal for order:', orderData);
     
+    // Track payment initiation in analytics
+    if (window.AnalyticsTracker) {
+        window.AnalyticsTracker.trackPaymentStart(orderData);
+    }
+    
     // Get modal elements
     const modal = document.getElementById('payment-modal');
     const orderDetails = document.getElementById('order-details');
@@ -318,8 +323,8 @@ function resetModalContent() {
 /**
  * Display payment success confirmation
  * 
- * Replaces the payment form with a success message and instructions
- * for the customer.
+ * Replaces the payment form with a success message, subscription details,
+ * and instructions for the customer.
  */
 function showPaymentSuccess() {
     console.log('🎉 Displaying payment success message');
@@ -331,6 +336,49 @@ function showPaymentSuccess() {
         return;
     }
     
+    // Build subscription information
+    let subscriptionSection = '';
+    
+    if (window.currentSubscriptionData) {
+        const nextBillingDate = new Date(window.currentSubscriptionData.next_billing_date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long', 
+            day: 'numeric'
+        });
+        
+        subscriptionSection = `
+            <div class="subscription-info">
+                <h4>🔄 Monthly Subscription Active</h4>
+                <p><strong>Monthly Amount:</strong> ${window.currentSubscriptionData.monthly_amount}</p>
+                <p><strong>Next Billing Date:</strong> ${nextBillingDate}</p>
+                <p><strong>Subscription ID:</strong> ${window.currentSubscriptionData.subscription_id}</p>
+                <div class="manage-subscription">
+                    <p>You can manage your subscription anytime:</p>
+                    <button onclick="openManageSubscription()" class="btn btn-secondary manage-btn">
+                        Manage Subscription
+                    </button>
+                </div>
+            </div>
+        `;
+    } else if (window.subscriptionCreationFailed) {
+        subscriptionSection = `
+            <div class="subscription-info warning">
+                <h4>⚠️ Subscription Setup Issue</h4>
+                <p>Your payment was successful, but there was an issue setting up your monthly subscription.</p>
+                <p>We'll contact you within 24 hours to resolve this.</p>
+                <p><strong>Error:</strong> ${window.subscriptionError || 'Unknown error'}</p>
+            </div>
+        `;
+    } else {
+        subscriptionSection = `
+            <div class="subscription-info">
+                <h4>🔄 Monthly Subscription</h4>
+                <p>Your monthly subscription is being set up and will begin in 30 days.</p>
+                <p>You'll receive a confirmation email with subscription details shortly.</p>
+            </div>
+        `;
+    }
+    
     // Replace modal content with success message
     modalBody.innerHTML = `
         <div class="payment-success">
@@ -338,7 +386,23 @@ function showPaymentSuccess() {
             <h3>Payment Successful!</h3>
             <p>Thank you for your order! We'll contact you within 24 hours to schedule your first tote delivery.</p>
             <p>A receipt has been sent to your email address.</p>
-            <button onclick="closePaymentModal()" class="btn btn-primary">Close</button>
+            
+            ${subscriptionSection}
+            
+            <div class="next-steps">
+                <h4>📦 What happens next?</h4>
+                <ol>
+                    <li>We'll call you within 24 hours to schedule delivery</li>
+                    <li>Your ${window.currentOrderData?.toteNumber || 'N/A'} totes will be delivered to your address</li>
+                    <li>Monthly billing begins 30 days from today</li>
+                    <li>You can manage your subscription anytime using the link above</li>
+                </ol>
+            </div>
+            
+            <div class="action-buttons">
+                <button onclick="closePaymentModal()" class="btn btn-primary">Close</button>
+                <button onclick="openManageSubscription()" class="btn btn-secondary">Manage Subscription</button>
+            </div>
         </div>
     `;
 }

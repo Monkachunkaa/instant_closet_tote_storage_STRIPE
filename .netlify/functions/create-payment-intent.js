@@ -1,9 +1,8 @@
 /**
- * NETLIFY SERVERLESS FUNCTION - CREATE PAYMENT INTENT
+ * NETLIFY SERVERLESS FUNCTION - CREATE PAYMENT INTENT WITH CUSTOMER
  * 
- * This function creates a Stripe payment intent on the server side.
- * It's called by the client-side JavaScript to securely initialize
- * payments without exposing the Stripe secret key.
+ * This function creates a Stripe payment intent and customer for subscription setup.
+ * After the initial payment, a subscription will be created for monthly billing.
  * 
  * Security Features:
  * - Input validation and sanitization
@@ -14,7 +13,7 @@
  * - STRIPE_SECRET_KEY: Your Stripe secret key from dashboard
  * 
  * @author Stripe Integration Team
- * @version 2.0.0 - Added security enhancements
+ * @version 3.0.0 - Added customer creation and subscription setup
  */
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -154,9 +153,66 @@ function validateAmount(amount, orderData) {
     console.log(`✅ Amount validation passed: ${amount/100}`);
 }
 
+/**
+ * Create or find existing Stripe customer
+ * @param {Object} orderData - Validated order data
+ * @returns {Object} Stripe customer object
+ */
+async function createOrFindCustomer(orderData) {
+    console.log('🔍 Looking for existing customer...');
+    
+    // Check if customer already exists by email
+    const existingCustomers = await stripe.customers.list({
+        email: orderData.email,
+        limit: 1
+    });
+    
+    if (existingCustomers.data.length > 0) {
+        const customer = existingCustomers.data[0];
+        console.log(`✅ Found existing customer: ${customer.id}`);
+        
+        // Update customer info if needed
+        const updatedCustomer = await stripe.customers.update(customer.id, {
+            name: orderData.name,
+            phone: orderData.phone,
+            address: {
+                line1: orderData.address,
+                country: 'US'
+            },
+            metadata: {
+                last_order_date: new Date().toISOString(),
+                total_orders: (parseInt(customer.metadata.total_orders) || 0) + 1
+            }
+        });
+        
+        return updatedCustomer;
+    }
+    
+    // Create new customer
+    console.log('👤 Creating new Stripe customer...');
+    const customer = await stripe.customers.create({
+        name: orderData.name,
+        email: orderData.email,
+        phone: orderData.phone,
+        address: {
+            line1: orderData.address,
+            country: 'US'
+        },
+        metadata: {
+            first_order_date: new Date().toISOString(),
+            tote_quantity: orderData.toteNumber.toString(),
+            total_orders: '1',
+            source: 'website_form'
+        }
+    });
+    
+    console.log(`✅ Created new customer: ${customer.id}`);
+    return customer;
+}
+
 exports.handler = async (event, context) => {
     const startTime = Date.now();
-    console.log('🚀 Payment intent creation requested');
+    console.log('🚀 Payment intent creation requested with subscription setup');
     
     // Get client IP for rate limiting
     const clientIP = event.headers['x-forwarded-for'] || 
@@ -219,18 +275,24 @@ exports.handler = async (event, context) => {
         console.log('💰 Validating payment amount...');
         validateAmount(amount, validatedOrderData);
         
+        // Create or find Stripe customer
+        const customer = await createOrFindCustomer(validatedOrderData);
+        
         console.log('🎯 Creating payment intent for validated order:', {
             customer: validatedOrderData.name,
             email: validatedOrderData.email,
             amount: amount,
-            totes: validatedOrderData.toteNumber
+            totes: validatedOrderData.toteNumber,
+            customerId: customer.id
         });
         
-        // Create payment intent with Stripe
+        // Create payment intent with customer and setup for future payments
         const paymentIntent = await stripe.paymentIntents.create({
             amount: amount,
             currency: 'usd',
-            description: `Instant Closet Tote Storage - Setup (${validatedOrderData.toteNumber} totes)`,
+            customer: customer.id,
+            description: `Instant Closet Tote Storage - Setup + First Month (${validatedOrderData.toteNumber} totes)`,
+            setup_future_usage: 'off_session', // Save payment method for subscriptions
             metadata: {
                 customer_name: validatedOrderData.name,
                 customer_email: validatedOrderData.email,
@@ -238,15 +300,18 @@ exports.handler = async (event, context) => {
                 customer_address: validatedOrderData.address,
                 tote_quantity: validatedOrderData.toteNumber.toString(),
                 total_cost: validatedOrderData.totalCost.toString(),
+                monthly_cost: (20 + (validatedOrderData.toteNumber * 10)).toString(),
                 client_ip: clientIP,
-                created_via: 'website_form'
+                created_via: 'website_form',
+                payment_type: 'setup_with_subscription'
             }
         });
         
         const processingTime = Date.now() - startTime;
         console.log(`✅ Payment intent created successfully: ${paymentIntent.id} (${processingTime}ms)`);
+        console.log(`👤 Customer created/updated: ${customer.id}`);
         
-        // Return client secret to frontend
+        // Return client secret and customer info to frontend
         return {
             statusCode: 200,
             headers: {
@@ -256,7 +321,9 @@ exports.handler = async (event, context) => {
             },
             body: JSON.stringify({
                 client_secret: paymentIntent.client_secret,
-                payment_intent_id: paymentIntent.id
+                payment_intent_id: paymentIntent.id,
+                customer_id: customer.id,
+                monthly_amount: 20 + (validatedOrderData.toteNumber * 10)
             })
         };
         

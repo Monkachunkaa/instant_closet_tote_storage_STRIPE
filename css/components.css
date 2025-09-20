@@ -833,3 +833,102 @@ footer {
     margin-bottom: 1.5rem;
     line-height: 1.6;
 }
+
+/* Subscription Info Styles */
+.subscription-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    text-align: left;
+    border-left: 4px solid #10b981;
+}
+
+.subscription-info.warning {
+    background: #fff3cd;
+    border-left-color: #ffc107;
+}
+
+.subscription-info h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.subscription-info p {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.subscription-info strong {
+    color: #2c3e50;
+}
+
+.manage-subscription {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.manage-btn {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.manage-btn:hover {
+    background: #5a6268;
+}
+
+/* Next Steps Styles */
+.next-steps {
+    background: #e7f3ff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    text-align: left;
+    border-left: 4px solid #007bff;
+}
+
+.next-steps h4 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.next-steps ol {
+    padding-left: 1.5rem;
+    color: #495057;
+}
+
+.next-steps li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.action-buttons .btn {
+    min-width: 150px;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: 2px solid #6c757d;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+    border-color: #5a6268;
+}

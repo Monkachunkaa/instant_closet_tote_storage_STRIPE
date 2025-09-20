@@ -116,6 +116,78 @@ async function handlePaymentSubmission() {
 }
 
 /**
+ * Create subscription after successful payment
+ * 
+ * Creates a monthly subscription for the customer using the saved payment method.
+ * The subscription starts 30 days after the initial payment.
+ * 
+ * @param {Object} paymentIntent - Successful Stripe payment intent object
+ */
+async function createSubscriptionAfterPayment(paymentIntent) {
+    console.log('🔄 Creating subscription after successful payment...');
+    
+    try {
+        // Get subscription data from stored order information
+        if (!window.currentOrderData) {
+            console.error('❌ No order data available for subscription creation');
+            throw new Error('Order data not found');
+        }
+        
+        // Calculate monthly amount (same as initial payment formula)
+        const monthlyAmount = 20 + (window.currentOrderData.toteNumber * 10);
+        
+        console.log('📡 Calling subscription creation function...');
+        
+        // Call Netlify function to create subscription
+        const response = await fetch('/.netlify/functions/create-subscription', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                payment_intent_id: paymentIntent.id,
+                customer_id: paymentIntent.customer,
+                monthly_amount: monthlyAmount,
+                tote_quantity: window.currentOrderData.toteNumber
+            })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('📡 Subscription creation failed:', errorText);
+            throw new Error(`Subscription creation failed: ${response.status}`);
+        }
+        
+        const subscriptionData = await response.json();
+        
+        if (subscriptionData.error) {
+            throw new Error(subscriptionData.error);
+        }
+        
+        console.log('✅ Subscription created successfully:', subscriptionData);
+        
+        // Store subscription info for email notifications
+        window.currentSubscriptionData = subscriptionData;
+        
+        // Track subscription creation in analytics
+        if (window.AnalyticsTracker) {
+            window.AnalyticsTracker.trackSubscriptionCreated({
+                subscription_id: subscriptionData.subscription_id,
+                monthly_amount: subscriptionData.monthly_amount,
+                next_billing_date: subscriptionData.next_billing_date
+            });
+        }
+        
+    } catch (error) {
+        console.error('⚠️ Subscription creation failed:', error);
+        // Don't throw - payment was successful, subscription failure shouldn't break the flow
+        // We'll handle this gracefully in the success message
+        window.subscriptionCreationFailed = true;
+        window.subscriptionError = error.message;
+    }
+}
+
+/**
  * Handle successful payment completion
  * 
  * Coordinates post-payment actions including sending email notifications
@@ -128,6 +200,11 @@ async function handlePaymentSubmission() {
  */
 async function handlePaymentSuccess(paymentIntent) {
     console.log('🎉 Processing successful REAL payment...');
+    
+    // Track successful payment in analytics
+    if (window.AnalyticsTracker && window.currentOrderData) {
+        window.AnalyticsTracker.trackPaymentSuccess(window.currentOrderData, paymentIntent.id);
+    }
     
     try {
         // Send email notifications in parallel for better performance
@@ -166,7 +243,7 @@ async function handlePaymentSuccess(paymentIntent) {
  * Send receipt email to customer
  * 
  * Uses EmailJS to send a formatted receipt to the customer with
- * order details and real payment confirmation.
+ * order details, payment confirmation, and subscription information.
  * 
  * @param {Object} paymentIntent - Real Stripe payment intent object
  */
@@ -178,6 +255,23 @@ async function sendCustomerReceipt(paymentIntent) {
     
     console.log('📧 Sending customer receipt for real payment...');
     
+    // Format next billing date
+    let nextBillingInfo = 'Your monthly billing will begin in 30 days.';
+    let subscriptionStatus = 'Monthly subscription will be set up automatically.';
+    
+    if (window.currentSubscriptionData) {
+        const nextBillingDate = new Date(window.currentSubscriptionData.next_billing_date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        nextBillingInfo = `Your next billing date is ${nextBillingDate} for ${window.currentSubscriptionData.monthly_amount}.`;
+        subscriptionStatus = `Monthly subscription active (ID: ${window.currentSubscriptionData.subscription_id}).`;
+    } else if (window.subscriptionCreationFailed) {
+        subscriptionStatus = 'Monthly subscription setup encountered an issue. We will contact you to resolve this.';
+        nextBillingInfo = 'Please check your email for follow-up instructions.';
+    }
+    
     const receiptData = {
         to_email: window.currentOrderData.email,
         customer_name: window.currentOrderData.name,
@@ -185,6 +279,7 @@ async function sendCustomerReceipt(paymentIntent) {
         amount_paid: (paymentIntent.amount / 100).toFixed(2), // Convert cents to dollars
         tote_quantity: window.currentOrderData.toteNumber,
         setup_cost: window.currentOrderData.totalCost,
+        monthly_cost: (20 + (window.currentOrderData.toteNumber * 10)).toFixed(2),
         customer_address: window.currentOrderData.address,
         customer_phone: window.currentOrderData.phone,
         payment_date: new Date().toLocaleDateString('en-US', {
@@ -194,7 +289,10 @@ async function sendCustomerReceipt(paymentIntent) {
             hour: '2-digit',
             minute: '2-digit'
         }),
-        payment_status: paymentIntent.status.toUpperCase() // 'SUCCEEDED'
+        payment_status: paymentIntent.status.toUpperCase(), // 'SUCCEEDED'
+        subscription_status: subscriptionStatus,
+        next_billing_info: nextBillingInfo,
+        subscription_id: window.currentSubscriptionData?.subscription_id || 'Pending setup'
     };
     
     try {
@@ -212,7 +310,7 @@ async function sendCustomerReceipt(paymentIntent) {
  * Send order notification to business
  * 
  * Uses EmailJS to notify the business of a new REAL paid order with
- * customer details and payment confirmation.
+ * customer details, payment confirmation, and subscription information.
  * 
  * @param {Object} paymentIntent - Real Stripe payment intent object
  */
@@ -224,6 +322,14 @@ async function sendBusinessNotification(paymentIntent) {
     
     console.log('📧 Sending business notification for real payment...');
     
+    // Format subscription info for business
+    let subscriptionInfo = 'Monthly subscription setup pending';
+    if (window.currentSubscriptionData) {
+        subscriptionInfo = `Monthly subscription created: ${window.currentSubscriptionData.subscription_id} - Next billing: ${new Date(window.currentSubscriptionData.next_billing_date).toLocaleDateString()}`;
+    } else if (window.subscriptionCreationFailed) {
+        subscriptionInfo = `⚠️ SUBSCRIPTION SETUP FAILED: ${window.subscriptionError} - MANUAL SETUP REQUIRED`;
+    }
+    
     const businessData = {
         name: window.currentOrderData.name,
         email: window.currentOrderData.email,
@@ -231,10 +337,14 @@ async function sendBusinessNotification(paymentIntent) {
         address: window.currentOrderData.address,
         tote_number: window.currentOrderData.toteNumber,
         order_cost: window.currentOrderData.totalCost,
-        message: `REAL PAID ORDER - Payment ID: ${paymentIntent.id}`,
+        monthly_cost: (20 + (window.currentOrderData.toteNumber * 10)).toFixed(2),
+        message: `REAL PAID ORDER WITH SUBSCRIPTION - Payment ID: ${paymentIntent.id}`,
         payment_status: 'COMPLETED - REAL PAYMENT',
         payment_id: paymentIntent.id, // Include real Stripe payment ID
         payment_amount: (paymentIntent.amount / 100).toFixed(2), // Real amount charged
+        subscription_info: subscriptionInfo,
+        subscription_id: window.currentSubscriptionData?.subscription_id || 'Setup pending',
+        customer_id: paymentIntent.customer,
         order_date: new Date().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',

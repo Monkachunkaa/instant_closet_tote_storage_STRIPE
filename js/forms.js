@@ -63,6 +63,15 @@ function handleRegularFormSubmission(form, messageDiv, templateId) {
     // Get form data
     const formData = new FormData(form);
     
+    // Track form submission in analytics
+    if (window.AnalyticsTracker) {
+        const formType = form.id === 'hero-contact-form' ? 'hero' : 'contact';
+        window.AnalyticsTracker.trackFormSubmission(formType, {
+            tote_number: formData.get('tote_number'),
+            address: formData.get('address')
+        });
+    }
+    
     // Get order cost from pricing calculator (if available)
     const orderCost = getOrderCost ? getOrderCost(form) : 0;
     
