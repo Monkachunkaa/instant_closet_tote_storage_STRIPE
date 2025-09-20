@@ -1,4 +1,74 @@
 /**
+ * Clear the original form that was submitted
+ * 
+ * Resets all form fields in the hero section and any associated
+ * cost displays to allow for a fresh order entry.
+ */
+function clearOriginalForm() {
+    console.log('🧹 Clearing original form...');
+    
+    // Find the hero form (main order form)
+    const heroForm = document.querySelector('#hero form, .hero form');
+    
+    if (heroForm) {
+        // Reset all form fields
+        heroForm.reset();
+        
+        // Clear any custom validation states
+        const inputs = heroForm.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.classList.remove('error', 'valid', 'invalid');
+            // Clear any custom error styling
+            if (input.style.borderColor) {
+                input.style.borderColor = '';
+            }
+        });
+        
+        // Hide the cost display
+        const costDisplay = document.querySelector('.cost-display');
+        if (costDisplay) {
+            costDisplay.style.display = 'none';
+            costDisplay.innerHTML = '';
+            costDisplay.setAttribute('data-cost', '0');
+        }
+        
+        // Clear any form validation messages
+        const errorMessages = heroForm.querySelectorAll('.error-message, .field-error');
+        errorMessages.forEach(msg => {
+            msg.textContent = '';
+            msg.style.display = 'none';
+        });
+        
+        console.log('✅ Hero form cleared successfully');
+    } else {
+        console.log('⚠️ Hero form not found, checking for other forms...');
+        
+        // Fallback: try to find any form that might have been submitted
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            // Look for forms that have the fields we expect
+            const nameField = form.querySelector('input[name="name"], #name, #hero-name');
+            const emailField = form.querySelector('input[name="email"], #email, #hero-email');
+            const toteField = form.querySelector('input[name="tote_number"], #tote_number, #hero-tote_number');
+            
+            if (nameField && emailField && toteField) {
+                console.log('📝 Found and clearing form:', form);
+                form.reset();
+                
+                // Hide associated cost display
+                const costDisplay = form.parentNode.querySelector('.cost-display') || 
+                                  form.nextElementSibling?.classList.contains('cost-display') ? form.nextElementSibling : null;
+                if (costDisplay) {
+                    costDisplay.style.display = 'none';
+                    costDisplay.innerHTML = '';
+                    costDisplay.setAttribute('data-cost', '0');
+                }
+            }
+        });
+    }
+}
+
+/**
  * STRIPE PAYMENT MODAL
  * 
  * This module handles the payment modal display, order summary presentation,
@@ -245,8 +315,8 @@ async function initializePaymentForm(orderData) {
 /**
  * Close the payment modal and clean up
  * 
- * Hides the modal, destroys Stripe elements, and resets the modal
- * content for future use.
+ * Hides the modal, destroys Stripe elements, resets the modal
+ * content for future use, and clears the original form.
  */
 function closePaymentModal() {
     console.log('🚪 Closing payment modal...');
@@ -275,8 +345,25 @@ function closePaymentModal() {
         window.currentClientSecret = null;
     }
     
+    // Clear subscription data
+    if (typeof window.currentSubscriptionData !== 'undefined') {
+        window.currentSubscriptionData = null;
+    }
+    
+    // Clear subscription error flags
+    if (typeof window.subscriptionCreationFailed !== 'undefined') {
+        window.subscriptionCreationFailed = false;
+    }
+    
+    if (typeof window.subscriptionError !== 'undefined') {
+        window.subscriptionError = null;
+    }
+    
     // Reset modal content for next use
     resetModalContent();
+    
+    // Clear the original form that was submitted
+    clearOriginalForm();
     
     console.log('✅ Payment modal closed and cleaned up');
 }
