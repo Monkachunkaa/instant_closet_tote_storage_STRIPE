@@ -302,9 +302,8 @@ async function sendCustomerReceipt(paymentIntent) {
     };
     
     try {
-        // Note: You'll need to create a 'customer_receipt' template in EmailJS
-        // This template should format the receipt nicely for customers
-        await emailjs.send('honeybee_gmail_service', 'customer_receipt', receiptData);
+        // Use updated customer receipt template (ICTS_customer_receipt)
+        await emailjs.send('honeybee_gmail_service', 'ICTS_customer_receipt', receiptData);
         console.log('✅ Customer receipt sent successfully for payment:', paymentIntent.id);
     } catch (error) {
         console.error('⚠️ Failed to send customer receipt:', error);
@@ -361,8 +360,8 @@ async function sendBusinessNotification(paymentIntent) {
     };
     
     try {
-        // Use existing business template (ICTS_lead)
-        await emailjs.send('honeybee_gmail_service', 'ICTS_lead', businessData);
+        // Use new order template (ICTS_order) for business notification
+        await emailjs.send('honeybee_gmail_service', 'ICTS_order', businessData);
         console.log('✅ Business notification sent successfully for payment:', paymentIntent.id);
     } catch (error) {
         console.error('⚠️ Failed to send business notification:', error);

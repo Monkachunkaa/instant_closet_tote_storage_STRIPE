@@ -80,10 +80,10 @@ function validateOrderData(orderData) {
         throw new Error('Valid email address is required');
     }
     
-    // Validate phone format (basic check)
-    const phoneRegex = /^[\d\s\-\(\)\+\.]+$/;
+    // Validate phone format - DIGITS ONLY
+    const phoneRegex = /^\d+$/;
     if (!orderData.phone || !phoneRegex.test(orderData.phone) || orderData.phone.length < 10) {
-        throw new Error('Valid phone number is required');
+        throw new Error('Valid phone number is required (digits only, minimum 10 digits)');
     }
     
     // Validate name

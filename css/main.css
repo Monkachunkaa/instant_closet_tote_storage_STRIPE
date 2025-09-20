@@ -161,6 +161,15 @@ html {
     outline: none;
 }
 
+/* Special styling for phone input with auto-formatting */
+.form-group input[type="tel"]:valid {
+    border-color: #10b981;
+}
+
+.form-group input[type="tel"]:invalid {
+    border-color: #ef4444;
+}
+
 .form-group textarea {
     height: 120px;
     resize: vertical;

@@ -3,7 +3,7 @@
  * Consolidated hero and contact form functionality
  * Depends on: pricing.js (for getOrderCost function)
  * 
- * @version 2.1.0 - Added enhanced address validation (10 char minimum)
+ * @version 2.3.0 - Fixed phone validation to digits only (no formatting characters)
  */
 
 // Form utilities
@@ -118,11 +118,21 @@ function handleOrderSubmission(form, messageDiv) {
     // Extract and validate form data
     const formData = FormUtils.extractFormData(form);
     
+    // Enhanced validation for phone number - DIGITS ONLY
+    const phoneRegex = /^\d+$/;
+    
     if (!formData.name || !formData.email || !formData.phone || 
         !formData.address || formData.address === 'Not provided' || formData.address.length < 10 ||
         !formData.tote_number || formData.tote_number === 'Not specified') {
         console.warn('⚠️ Missing required fields for order:', formData);
         FormUtils.showMessage(messageDiv, '❌ Please fill in all required fields. Address must be at least 10 characters.', 'error');
+        return;
+    }
+    
+    // Additional phone validation
+    if (!phoneRegex.test(formData.phone) || formData.phone.length < 10) {
+        console.warn('⚠️ Invalid phone number for order:', formData.phone);
+        FormUtils.showMessage(messageDiv, '❌ Please enter a valid phone number (digits only, minimum 10 digits).', 'error');
         return;
     }
     
@@ -165,9 +175,20 @@ function handleContactSubmission(form, messageDiv) {
     // Extract form data
     const formData = FormUtils.extractFormData(form);
     
+    // Enhanced validation for phone number - DIGITS ONLY
+    const phoneRegex = /^\d+$/;
+    
     // Validate required fields
     if (!formData.name || !formData.email || !formData.phone) {
         FormUtils.showMessage(messageDiv, '❌ Please fill in all required fields.', 'error');
+        FormUtils.setButtonLoading(submitBtn, false, originalBtnText);
+        return;
+    }
+    
+    // Additional phone validation
+    if (!phoneRegex.test(formData.phone) || formData.phone.length < 10) {
+        console.warn('⚠️ Invalid phone number for contact form:', formData.phone);
+        FormUtils.showMessage(messageDiv, '❌ Please enter a valid phone number (digits only, minimum 10 digits).', 'error');
         FormUtils.setButtonLoading(submitBtn, false, originalBtnText);
         return;
     }
@@ -223,7 +244,9 @@ function handleContactSubmission(form, messageDiv) {
  */
 function initFormValidation(form, messageDiv) {
     const addressField = form.querySelector('input[name="address"]');
+    const phoneField = form.querySelector('input[name="phone"]');
     
+    // Enhanced address validation
     if (addressField) {
         // Add real-time validation for address field
         addressField.addEventListener('input', function() {
@@ -249,6 +272,64 @@ function initFormValidation(form, messageDiv) {
             
             if (this.hasAttribute('required') && value.length > 0 && value.length < 10) {
                 FormUtils.showMessage(messageDiv, `⚠️ Address must be at least 10 characters. Current: ${value.length} characters.`, 'error');
+            }
+        });
+    }
+    
+    // Enhanced phone validation
+    if (phoneField) {
+        // Phone validation regex - DIGITS ONLY (matches server-side pattern)
+        const phoneRegex = /^\d+$/;
+        
+        phoneField.addEventListener('input', function() {
+            const value = this.value.trim();
+            
+            // Clear any existing error messages when user starts typing
+            const errorMessage = messageDiv.querySelector('.form-message.error');
+            if (errorMessage) {
+                FormUtils.clearMessage(messageDiv);
+            }
+            
+            // Reset custom validity
+            this.setCustomValidity('');
+            
+            // Check phone format and length
+            if (value.length > 0) {
+                if (!phoneRegex.test(value)) {
+                    this.setCustomValidity('Phone number can only contain digits (0-9)');
+                } else if (value.length < 10) {
+                    this.setCustomValidity(`Phone number must be at least 10 digits (${value.length}/10)`);
+                }
+            }
+        });
+        
+        // Show validation message on blur
+        phoneField.addEventListener('blur', function() {
+            const value = this.value.trim();
+            
+            if (this.hasAttribute('required') && value.length > 0) {
+                if (!phoneRegex.test(value)) {
+                    FormUtils.showMessage(messageDiv, '⚠️ Phone number can only contain digits (0-9).', 'error');
+                } else if (value.length < 10) {
+                    FormUtils.showMessage(messageDiv, `⚠️ Phone number must be at least 10 digits. Current: ${value.length} digits.`, 'error');
+                }
+            }
+        });
+        
+        // Prevent non-digit input
+        phoneField.addEventListener('keypress', function(e) {
+            // Allow: backspace, delete, tab, escape, enter
+            if ([46, 8, 9, 27, 13].indexOf(e.keyCode) !== -1 ||
+                // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (e.keyCode === 65 && e.ctrlKey === true) ||
+                (e.keyCode === 67 && e.ctrlKey === true) ||
+                (e.keyCode === 86 && e.ctrlKey === true) ||
+                (e.keyCode === 88 && e.ctrlKey === true)) {
+                return;
+            }
+            // Ensure that it's a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
             }
         });
     }
