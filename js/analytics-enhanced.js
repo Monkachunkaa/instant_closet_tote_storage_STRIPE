@@ -9,7 +9,7 @@
  * - Phone calls and CTA interactions
  * 
  * @author Analytics Team
- * @version 1.0.0
+ * @version 1.1.0 - Fixed syntax errors and optimized tracking
  */
 
 // Enhanced Analytics Tracking Functions
@@ -76,6 +76,22 @@ const AnalyticsTracker = {
         });
         
         console.log('📊 Analytics: Purchase tracked', paymentIntentId);
+    },
+    
+    /**
+     * Track subscription creation for recurring revenue analysis
+     * @param {Object} subscriptionData - Subscription information
+     */
+    trackSubscriptionCreated: function(subscriptionData) {
+        gtag('event', 'subscription_created', {
+            'subscription_id': subscriptionData.subscription_id,
+            'monthly_amount': subscriptionData.monthly_amount,
+            'next_billing_date': subscriptionData.next_billing_date,
+            'event_category': 'Subscription',
+            'event_label': 'Monthly Subscription Active'
+        });
+        
+        console.log('📊 Analytics: Subscription creation tracked', subscriptionData);
     },
     
     /**
@@ -148,4 +164,153 @@ const AnalyticsTracker = {
                 // Set timer to fire after user stops scrolling
                 timer = setTimeout(() => {
                     // Track each milestone only once
-                    if (maxScroll >= 25 && !milestones[25]) {\n                        milestones[25] = true;\n                        gtag('event', 'scroll_depth_25', {\n                            'event_category': 'User Engagement',\n                            'event_label': '25% Page Scroll'\n                        });\n                    }\n                    if (maxScroll >= 50 && !milestones[50]) {\n                        milestones[50] = true;\n                        gtag('event', 'scroll_depth_50', {\n                            'event_category': 'User Engagement',\n                            'event_label': '50% Page Scroll'\n                        });\n                    }\n                    if (maxScroll >= 75 && !milestones[75]) {\n                        milestones[75] = true;\n                        gtag('event', 'scroll_depth_75', {\n                            'event_category': 'User Engagement',\n                            'event_label': '75% Page Scroll'\n                        });\n                    }\n                    if (maxScroll >= 90 && !milestones[90]) {\n                        milestones[90] = true;\n                        gtag('event', 'scroll_depth_90', {\n                            'event_category': 'User Engagement',\n                            'event_label': '90% Page Scroll'\n                        });\n                    }\n                }, 1000);\n            }\n        });\n    },\n    \n    /**\n     * Track time spent on page for engagement analysis\n     * Sends data when user leaves the page\n     */\n    trackTimeOnPage: function() {\n        const startTime = new Date().getTime();\n        \n        // Track when user leaves page\n        window.addEventListener('beforeunload', function() {\n            const timeOnPage = Math.round((new Date().getTime() - startTime) / 1000);\n            \n            // Only track if user spent meaningful time (more than 10 seconds)\n            if (timeOnPage > 10) {\n                gtag('event', 'time_on_page', {\n                    'time_seconds': timeOnPage,\n                    'event_category': 'User Engagement',\n                    'event_label': 'Page Duration'\n                });\n            }\n        });\n    },\n    \n    /**\n     * Track email clicks for contact method analysis\n     * @param {string} emailAddress - Email address that was clicked\n     */\n    trackEmailClick: function(emailAddress) {\n        gtag('event', 'email_click', {\n            'email_address': emailAddress,\n            'event_category': 'Contact',\n            'event_label': 'Email Link Clicked'\n        });\n        \n        console.log('📊 Analytics: Email click tracked', emailAddress);\n    },\n    \n    /**\n     * Track form field interactions for UX analysis\n     * @param {string} fieldName - Name of the form field\n     * @param {string} action - Action taken ('focus', 'blur', 'error')\n     */\n    trackFormFieldInteraction: function(fieldName, action) {\n        gtag('event', 'form_field_interaction', {\n            'field_name': fieldName,\n            'interaction_type': action,\n            'event_category': 'Form UX',\n            'event_label': `Field ${action}: ${fieldName}`\n        });\n    }\n};\n\n/**\n * Initialize all automatic tracking when DOM is ready\n * Sets up event listeners for common interactions\n */\nfunction initializeAnalyticsTracking() {\n    // Initialize engagement tracking\n    AnalyticsTracker.trackScrollDepth();\n    AnalyticsTracker.trackTimeOnPage();\n    \n    // Track all phone number clicks\n    document.querySelectorAll('a[href^=\"tel:\"]').forEach(link => {\n        link.addEventListener('click', function() {\n            const phoneNumber = this.getAttribute('href').replace('tel:', '');\n            AnalyticsTracker.trackPhoneCall(phoneNumber);\n        });\n    });\n    \n    // Track all email clicks\n    document.querySelectorAll('a[href^=\"mailto:\"]').forEach(link => {\n        link.addEventListener('click', function() {\n            const emailAddress = this.getAttribute('href').replace('mailto:', '');\n            AnalyticsTracker.trackEmailClick(emailAddress);\n        });\n    });\n    \n    // Track FAQ interactions\n    document.querySelectorAll('.faq-question').forEach(button => {\n        button.addEventListener('click', function() {\n            const question = this.querySelector('span:first-child')?.textContent?.trim() || this.textContent.trim();\n            AnalyticsTracker.trackFAQInteraction(question);\n        });\n    });\n    \n    // Track CTA button clicks\n    document.querySelectorAll('.btn, .nav-cta').forEach(button => {\n        button.addEventListener('click', function() {\n            const section = this.closest('section');\n            const location = section ? \n                (section.id || section.className.split(' ')[0] || 'unknown') : \n                'navigation';\n            const text = this.textContent.trim();\n            AnalyticsTracker.trackCTAClick(location, text);\n        });\n    });\n    \n    // Track form field interactions for UX insights\n    document.querySelectorAll('input, textarea, select').forEach(field => {\n        field.addEventListener('focus', function() {\n            AnalyticsTracker.trackFormFieldInteraction(this.name || this.id, 'focus');\n        });\n        \n        field.addEventListener('blur', function() {\n            if (this.required && !this.value) {\n                AnalyticsTracker.trackFormFieldInteraction(this.name || this.id, 'abandoned');\n            }\n        });\n    });\n    \n    console.log('✅ Enhanced Analytics tracking initialized');\n}\n\n// Auto-initialize when DOM is ready\ndocument.addEventListener('DOMContentLoaded', initializeAnalyticsTracking);\n\n// Make tracker available globally for form submissions and payments\nwindow.AnalyticsTracker = AnalyticsTracker;
+                    if (maxScroll >= 25 && !milestones[25]) {
+                        milestones[25] = true;
+                        gtag('event', 'scroll_depth_25', {
+                            'event_category': 'User Engagement',
+                            'event_label': '25% Page Scroll'
+                        });
+                    }
+                    if (maxScroll >= 50 && !milestones[50]) {
+                        milestones[50] = true;
+                        gtag('event', 'scroll_depth_50', {
+                            'event_category': 'User Engagement',
+                            'event_label': '50% Page Scroll'
+                        });
+                    }
+                    if (maxScroll >= 75 && !milestones[75]) {
+                        milestones[75] = true;
+                        gtag('event', 'scroll_depth_75', {
+                            'event_category': 'User Engagement',
+                            'event_label': '75% Page Scroll'
+                        });
+                    }
+                    if (maxScroll >= 90 && !milestones[90]) {
+                        milestones[90] = true;
+                        gtag('event', 'scroll_depth_90', {
+                            'event_category': 'User Engagement',
+                            'event_label': '90% Page Scroll'
+                        });
+                    }
+                }, 1000);
+            }
+        });
+    },
+    
+    /**
+     * Track time spent on page for engagement analysis
+     * Sends data when user leaves the page
+     */
+    trackTimeOnPage: function() {
+        const startTime = new Date().getTime();
+        
+        // Track when user leaves page
+        window.addEventListener('beforeunload', function() {
+            const timeOnPage = Math.round((new Date().getTime() - startTime) / 1000);
+            
+            // Only track if user spent meaningful time (more than 10 seconds)
+            if (timeOnPage > 10) {
+                gtag('event', 'time_on_page', {
+                    'time_seconds': timeOnPage,
+                    'event_category': 'User Engagement',
+                    'event_label': 'Page Duration'
+                });
+            }
+        });
+    },
+    
+    /**
+     * Track email clicks for contact method analysis
+     * @param {string} emailAddress - Email address that was clicked
+     */
+    trackEmailClick: function(emailAddress) {
+        gtag('event', 'email_click', {
+            'email_address': emailAddress,
+            'event_category': 'Contact',
+            'event_label': 'Email Link Clicked'
+        });
+        
+        console.log('📊 Analytics: Email click tracked', emailAddress);
+    },
+    
+    /**
+     * Track form field interactions for UX analysis
+     * @param {string} fieldName - Name of the form field
+     * @param {string} action - Action taken ('focus', 'blur', 'error')
+     */
+    trackFormFieldInteraction: function(fieldName, action) {
+        gtag('event', 'form_field_interaction', {
+            'field_name': fieldName,
+            'interaction_type': action,
+            'event_category': 'Form UX',
+            'event_label': `Field ${action}: ${fieldName}`
+        });
+    }
+};
+
+/**
+ * Initialize all automatic tracking when DOM is ready
+ * Sets up event listeners for common interactions
+ */
+function initializeAnalyticsTracking() {
+    // Initialize engagement tracking
+    AnalyticsTracker.trackScrollDepth();
+    AnalyticsTracker.trackTimeOnPage();
+    
+    // Track all phone number clicks
+    document.querySelectorAll('a[href^="tel:"]').forEach(link => {
+        link.addEventListener('click', function() {
+            const phoneNumber = this.getAttribute('href').replace('tel:', '');
+            AnalyticsTracker.trackPhoneCall(phoneNumber);
+        });
+    });
+    
+    // Track all email clicks
+    document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
+        link.addEventListener('click', function() {
+            const emailAddress = this.getAttribute('href').replace('mailto:', '');
+            AnalyticsTracker.trackEmailClick(emailAddress);
+        });
+    });
+    
+    // Track FAQ interactions
+    document.querySelectorAll('.faq-question').forEach(button => {
+        button.addEventListener('click', function() {
+            const question = this.querySelector('span:first-child')?.textContent?.trim() || this.textContent.trim();
+            AnalyticsTracker.trackFAQInteraction(question);
+        });
+    });
+    
+    // Track CTA button clicks
+    document.querySelectorAll('.btn, .nav-cta').forEach(button => {
+        button.addEventListener('click', function() {
+            const section = this.closest('section');
+            const location = section ? 
+                (section.id || section.className.split(' ')[0] || 'unknown') : 
+                'navigation';
+            const text = this.textContent.trim();
+            AnalyticsTracker.trackCTAClick(location, text);
+        });
+    });
+    
+    // Track form field interactions for UX insights
+    document.querySelectorAll('input, textarea, select').forEach(field => {
+        field.addEventListener('focus', function() {
+            AnalyticsTracker.trackFormFieldInteraction(this.name || this.id, 'focus');
+        });
+        
+        field.addEventListener('blur', function() {
+            if (this.required && !this.value) {
+                AnalyticsTracker.trackFormFieldInteraction(this.name || this.id, 'abandoned');
+            }
+        });
+    });
+    
+    console.log('✅ Enhanced Analytics tracking initialized');
+}
+
+// Auto-initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', initializeAnalyticsTracking);
+
+// Make tracker available globally for form submissions and payments
+window.AnalyticsTracker = AnalyticsTracker;

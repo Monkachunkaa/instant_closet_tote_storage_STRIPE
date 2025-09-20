@@ -2,6 +2,8 @@
  * PRICING CALCULATOR
  * Calculates and displays order costs for tote storage service
  * Formula: $20 trip fee + ($10 × number of totes) for first order
+ * 
+ * @version 2.0.0 - Removed unused Node.js exports, browser-optimized
  */
 
 /**
@@ -165,13 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(initPricingCalculators, 100);
 });
 
-// Export functions for use by other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        calculateSetupCost,
-        formatCostMessage,
-        updatePricingDisplay,
-        getOrderCost,
-        initPricingCalculators
-    };
-}
+// Export functions to global scope for browser compatibility
+window.getOrderCost = getOrderCost;
+window.calculateSetupCost = calculateSetupCost;

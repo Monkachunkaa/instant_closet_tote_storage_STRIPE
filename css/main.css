@@ -140,10 +140,25 @@ html {
     font-size: 0.9rem;
 }
 
-.form-group input:focus,
+.form-group input:invalid {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-group input:valid {
+    border-color: #10b981;
+}
+
+.form-group input:focus:invalid {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-group input:focus:valid,
 .form-group textarea:focus {
-    outline: none;
     border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(248, 207, 31, 0.1);
+    outline: none;
 }
 
 .form-group textarea {

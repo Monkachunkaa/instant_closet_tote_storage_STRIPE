@@ -4,7 +4,7 @@
   "description": "Netlify functions for Stripe payment processing",
   "main": "index.js",
   "dependencies": {
-    "stripe": "^14.0.0"
+    "stripe": "^14.25.0"
   },
   "scripts": {
     "build": "echo 'No build step required'"

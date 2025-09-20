@@ -2,14 +2,13 @@
  * STRIPE PAYMENT INTEGRATION - MAIN MODULE
  * 
  * This module handles Stripe initialization and order processing for the
- * Instant Closet Tote Storage payment system. It uses Stripe Elements in
- * setup mode for client-side payment form validation without requiring
- * a server-side payment intent creation (demo mode).
+ * Instant Closet Tote Storage payment system. It creates real payment intents
+ * and processes actual payments with subscription creation.
  * 
  * Dependencies: stripe-modal.js, stripe-handlers.js, pricing.js, forms.js
  * 
  * @author Stripe Integration Team
- * @version 1.0.0
+ * @version 3.0.0 - Real payment processing with subscriptions
  */
 
 // Stripe configuration - Your publishable key from Stripe dashboard
@@ -82,23 +81,7 @@ function processOrderSubmission(form, messageDiv) {
         return;
     }
     
-    // Track form submission in analytics
-    if (window.AnalyticsTracker) {
-        window.AnalyticsTracker.trackFormSubmission('hero', {
-            tote_number: orderData.toteNumber,
-            address: orderData.address
-        });
-    }
-    
     console.log('✅ Order validation passed:', orderData);
-    
-    // Track form submission in analytics
-    if (window.AnalyticsTracker) {
-        window.AnalyticsTracker.trackFormSubmission('hero', {
-            tote_number: orderData.toteNumber,
-            address: orderData.address
-        });
-    }
     
     // Open payment modal (function defined in stripe-modal.js)
     showPaymentModal(orderData);

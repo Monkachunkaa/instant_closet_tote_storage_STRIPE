@@ -30,38 +30,41 @@ function getNextBillingDate() {
  */
 async function createOrFindPrice(monthlyAmount) {
     const priceAmountCents = monthlyAmount * 100;
-    const priceId = `monthly_storage_${monthlyAmount}_usd`;
     
     try {
-        // Try to retrieve existing price
-        const existingPrice = await stripe.prices.retrieve(priceId);
-        console.log(`✅ Found existing price: ${existingPrice.id}`);
-        return existingPrice;
-    } catch (error) {
-        // Price doesn't exist, create it
-        console.log(`📦 Creating new price for $${monthlyAmount}/month...`);
+        // First, try to find an existing price with this amount
+        const prices = await stripe.prices.list({
+            currency: 'usd',
+            recurring: { interval: 'month' },
+            unit_amount: priceAmountCents,
+            limit: 1
+        });
+        
+        if (prices.data.length > 0) {
+            console.log(`✅ Found existing price: ${prices.data[0].id}`);
+            return prices.data[0];
+        }
+        
+        // Price doesn't exist, create it without custom ID
+        console.log(`📦 Creating new price for ${monthlyAmount}/month...`);
         
         const price = await stripe.prices.create({
-            id: priceId,
             currency: 'usd',
             unit_amount: priceAmountCents,
             recurring: {
-                interval: 'month',
-                interval_count: 1
+                interval: 'month'
             },
             product_data: {
-                name: 'Monthly Tote Storage',
-                description: `Monthly storage service ($20 base + $10 per tote)`
-            },
-            metadata: {
-                service_type: 'monthly_storage',
-                base_fee: '20',
-                per_tote_fee: '10'
+                name: 'Monthly Tote Storage'
             }
         });
         
         console.log(`✅ Created new price: ${price.id}`);
         return price;
+        
+    } catch (error) {
+        console.error('❌ Error with price creation:', error);
+        throw error;
     }
 }
 
@@ -112,8 +115,8 @@ exports.handler = async (event, context) => {
             throw new Error('Missing payment intent ID, customer ID, or monthly amount');
         }
         
-        // Validate monthly amount
-        if (monthly_amount < 40 || monthly_amount > 120) {
+        // Validate monthly amount (updated for new pricing structure)
+        if (monthly_amount < 20 || monthly_amount > 100) {
             throw new Error('Invalid monthly amount');
         }
         

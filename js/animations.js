@@ -1,6 +1,8 @@
 /**
  * ANIMATIONS AND INTERACTIONS
  * Scroll animations, FAQ functionality, and visual effects
+ * 
+ * @version 2.0.0 - Removed unused parallax effect for better performance
  */
 
 // Scroll animation observer
@@ -67,26 +69,12 @@ function initializeFAQ() {
     });
 }
 
-// Parallax effect for hero background (optional enhancement)
-function initParallaxEffect() {
-    const hero = document.querySelector('.hero');
-    if (!hero) return;
-
-    window.addEventListener('scroll', function() {
-        const scrolled = window.pageYOffset;
-        const parallax = hero.querySelector('.hero::before');
-        if (parallax) {
-            const speed = scrolled * 0.5;
-            parallax.style.transform = `translateY(${speed}px)`;
-        }
-    });
-}
+// Note: Parallax effect removed for better performance and accessibility
 
 // Initialize all animations and interactions
 function initAnimations() {
     createScrollObserver();
     initializeFAQ();
-    // initParallaxEffect(); // Uncomment if you want parallax effect
 }
 
 // Run when DOM is loaded

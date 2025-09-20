@@ -1,6 +1,8 @@
 /**
  * INSTANT CLOSET TOTE STORAGE - MAIN JAVASCRIPT
  * Main functionality and initialization
+ * 
+ * @version 2.0.0 - Removed unused WebP detection, optimized performance
  */
 
 // Initialize EmailJS
@@ -10,18 +12,7 @@
     });
 })();
 
-// WebP Support Detection
-function checkWebPSupport() {
-    const webP = new Image();
-    webP.onload = webP.onerror = function () {
-        if (webP.height === 2) {
-            document.documentElement.classList.add('webp');
-        } else {
-            document.documentElement.classList.add('no-webp');
-        }
-    };
-    webP.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
-}
+// Note: WebP images are used with <picture> fallbacks in HTML - no JS detection needed
 
 // Smooth scrolling for navigation links (only for same-page links)
 // Excludes links that have enhanced behavior in navigation.js
@@ -61,7 +52,6 @@ function initHeaderScrollEffect() {
 
 // Initialize all main functionality
 function initMain() {
-    checkWebPSupport();
     initSmoothScrolling();
     initHeaderScrollEffect();
 }

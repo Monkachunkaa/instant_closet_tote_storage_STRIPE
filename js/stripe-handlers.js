@@ -2,13 +2,12 @@
  * STRIPE PAYMENT HANDLERS
  * 
  * This module handles real payment processing using Stripe payment intents,
- * success/failure states, and email notifications. Now processes real
- * payments instead of simulations.
+ * subscription creation, success/failure states, and email notifications.
  * 
  * Dependencies: stripe-payment.js, stripe-modal.js, EmailJS
  * 
  * @author Stripe Integration Team
- * @version 2.0.0 - Now with real payment processing
+ * @version 3.0.0 - Added subscription creation after successful payment
  */
 
 /**
@@ -95,7 +94,11 @@ async function handlePaymentSubmission() {
             console.log('✅ REAL payment succeeded!', result.paymentIntent);
             
             // Create subscription for monthly billing
-            await createSubscriptionAfterPayment(result.paymentIntent);
+            try {
+                await createSubscriptionAfterPayment(result.paymentIntent);
+            } catch (subError) {
+                console.error('⚠️ Subscription creation failed:', subError);
+            }
             
             // Handle successful payment (emails, UI updates)
             await handlePaymentSuccess(result.paymentIntent);
@@ -136,8 +139,8 @@ async function createSubscriptionAfterPayment(paymentIntent) {
             throw new Error('Order data not found');
         }
         
-        // Calculate monthly amount (same as initial payment formula)
-        const monthlyAmount = 20 + (window.currentOrderData.toteNumber * 10);
+        // Calculate monthly amount (same as initial payment formula minus setup fee)
+        const monthlyAmount = window.currentOrderData.toteNumber * 10; // Only $10 per tote, no $20 setup fee
         
         console.log('📡 Calling subscription creation function...');
         
@@ -149,7 +152,7 @@ async function createSubscriptionAfterPayment(paymentIntent) {
             },
             body: JSON.stringify({
                 payment_intent_id: paymentIntent.id,
-                customer_id: paymentIntent.customer,
+                customer_id: window.currentCustomerId, // Use stored customer ID
                 monthly_amount: monthlyAmount,
                 tote_quantity: window.currentOrderData.toteNumber
             })
@@ -282,7 +285,7 @@ async function sendCustomerReceipt(paymentIntent) {
         amount_paid: (paymentIntent.amount / 100).toFixed(2), // Convert cents to dollars
         tote_quantity: window.currentOrderData.toteNumber,
         setup_cost: window.currentOrderData.totalCost,
-        monthly_cost: (20 + (window.currentOrderData.toteNumber * 10)).toFixed(2),
+        monthly_cost: (window.currentOrderData.toteNumber * 10).toFixed(2), // Monthly cost without setup fee
         customer_address: window.currentOrderData.address,
         customer_phone: window.currentOrderData.phone,
         payment_date: new Date().toLocaleDateString('en-US', {
@@ -340,7 +343,7 @@ async function sendBusinessNotification(paymentIntent) {
         address: window.currentOrderData.address,
         tote_number: window.currentOrderData.toteNumber,
         order_cost: window.currentOrderData.totalCost,
-        monthly_cost: (20 + (window.currentOrderData.toteNumber * 10)).toFixed(2),
+        monthly_cost: (window.currentOrderData.toteNumber * 10).toFixed(2), // Monthly cost without setup fee
         message: `REAL PAID ORDER WITH SUBSCRIPTION - Payment ID: ${paymentIntent.id}`,
         payment_status: 'COMPLETED - REAL PAYMENT',
         payment_id: paymentIntent.id, // Include real Stripe payment ID

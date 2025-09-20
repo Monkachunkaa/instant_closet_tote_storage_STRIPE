@@ -1,4 +1,33 @@
 /**
+ * Calculate the next payment date (30 days from today)
+ * @returns {string} Formatted date string
+ */
+function getNextPaymentDate() {
+    const nextPaymentDate = new Date();
+    nextPaymentDate.setDate(nextPaymentDate.getDate() + 30);
+    
+    return nextPaymentDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+}
+
+/**
+ * Calculate the next payment date in short format (for order summary)
+ * @returns {string} Short formatted date string (e.g., "Oct. 20")
+ */
+function getNextPaymentDateShort() {
+    const nextPaymentDate = new Date();
+    nextPaymentDate.setDate(nextPaymentDate.getDate() + 30);
+    
+    return nextPaymentDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+/**
  * STRIPE PAYMENT MODAL
  * 
  * This module handles the payment modal display, order summary presentation,
@@ -8,7 +37,7 @@
  * Dependencies: stripe-payment.js, stripe-handlers.js
  * 
  * @author Stripe Integration Team
- * @version 2.0.0 - Now with real payment intent integration
+ * @version 2.1.0 - Simplified monthly subscription details to single line
  */
 
 /**
@@ -93,6 +122,10 @@ async function showPaymentModal(orderData) {
         <div class="order-detail-item">
             <span class="order-detail-label">Setup Cost:</span>
             <span class="order-detail-value">$${orderData.totalCost} ($20 trip fee + $${orderData.toteNumber * 10} first month)</span>
+        </div>
+        <div class="order-detail-item">
+            <span class="order-detail-label">Monthly subscription fee:</span>
+            <span class="order-detail-value">$${orderData.toteNumber * 10} (next payment due ${getNextPaymentDateShort()})</span>
         </div>
     `;
     
@@ -209,6 +242,7 @@ async function initializePaymentForm(orderData) {
         window.currentPaymentElement = paymentElement;
         window.currentClientSecret = clientSecret;
         window.currentOrderData = orderData;
+        window.currentCustomerId = data.customer_id; // Store customer ID for subscription creation
 
         // Set up event listeners for payment element
         paymentElement.on('ready', () => {
@@ -275,49 +309,7 @@ function closePaymentModal() {
         window.currentClientSecret = null;
     }
     
-    // Reset modal content for next use
-    resetModalContent();
-    
     console.log('✅ Payment modal closed and cleaned up');
-}
-
-/**
- * Reset modal content to original state
- * 
- * Restores the modal HTML to its initial state and re-attaches
- * event listeners for future use.
- */
-function resetModalContent() {
-    const modalBody = document.querySelector('.payment-modal-body');
-    
-    if (!modalBody) {
-        console.warn('⚠️ Modal body not found for reset');
-        return;
-    }
-    
-    // Restore original modal HTML structure
-    modalBody.innerHTML = `
-        <div class="order-summary">
-            <h4>Order Summary</h4>
-            <div id="order-details"></div>
-            <div class="total-cost">
-                <strong>Total: <span id="total-amount">$0</span></strong>
-            </div>
-        </div>
-        <div class="payment-form">
-            <div id="payment-element">
-                <!-- Stripe Elements will create form elements here -->
-            </div>
-            <div id="payment-errors" role="alert"></div>
-            <button id="payment-submit" class="btn btn-primary payment-submit-btn">
-                <div class="spinner hidden" id="payment-spinner"></div>
-                <span id="payment-button-text">Complete Payment</span>
-            </button>
-        </div>
-    `;
-    
-    // Re-attach event listeners for the reset modal
-    initializeModalEventListeners();
 }
 
 /**
@@ -349,14 +341,11 @@ function showPaymentSuccess() {
         subscriptionSection = `
             <div class="subscription-info">
                 <h4>🔄 Monthly Subscription Active</h4>
-                <p><strong>Monthly Amount:</strong> ${window.currentSubscriptionData.monthly_amount}</p>
+                <p><strong>Monthly Amount:</strong> $${window.currentSubscriptionData.monthly_amount}</p>
                 <p><strong>Next Billing Date:</strong> ${nextBillingDate}</p>
                 <p><strong>Subscription ID:</strong> ${window.currentSubscriptionData.subscription_id}</p>
                 <div class="manage-subscription">
-                    <p>You can manage your subscription anytime:</p>
-                    <button onclick="openManageSubscription()" class="btn btn-secondary manage-btn">
-                        Manage Subscription
-                    </button>
+                    <p>To manage your subscription or cancel service, please call us at <strong>(855) 858-6837</strong></p>
                 </div>
             </div>
         `;
@@ -395,13 +384,12 @@ function showPaymentSuccess() {
                     <li>We'll call you within 24 hours to schedule delivery</li>
                     <li>Your ${window.currentOrderData?.toteNumber || 'N/A'} totes will be delivered to your address</li>
                     <li>Monthly billing begins 30 days from today</li>
-                    <li>You can manage your subscription anytime using the link above</li>
+                    <li>To cancel or modify your subscription, call us at <strong>(855) 858-6837</strong></li>
                 </ol>
             </div>
             
             <div class="action-buttons">
                 <button onclick="closePaymentModal()" class="btn btn-primary">Close</button>
-                <button onclick="openManageSubscription()" class="btn btn-secondary">Manage Subscription</button>
             </div>
         </div>
     `;
