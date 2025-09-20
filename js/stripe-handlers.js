@@ -94,6 +94,9 @@ async function handlePaymentSubmission() {
             // Payment succeeded!
             console.log('✅ REAL payment succeeded!', result.paymentIntent);
             
+            // Create subscription for monthly billing
+            await createSubscriptionAfterPayment(result.paymentIntent);
+            
             // Handle successful payment (emails, UI updates)
             await handlePaymentSuccess(result.paymentIntent);
             
