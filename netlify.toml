@@ -13,35 +13,7 @@
   for = "/*"
   [headers.values]
     # Content Security Policy - Prevents XSS and injection attacks
-    Content-Security-Policy = """
-      default-src 'self';
-      script-src 'self' 'unsafe-inline' 
-        https://www.googletagmanager.com 
-        https://www.google-analytics.com 
-        https://js.stripe.com 
-        https://cdn.jsdelivr.net 
-        https://cdnjs.cloudflare.com;
-      style-src 'self' 'unsafe-inline' 
-        https://fonts.googleapis.com;
-      font-src 'self' 
-        https://fonts.gstatic.com;
-      img-src 'self' data: 
-        https://www.google-analytics.com 
-        https://www.googletagmanager.com;
-      connect-src 'self' 
-        https://www.google-analytics.com 
-        https://api.stripe.com 
-        https://*.netlify.app 
-        https://api.emailjs.com;
-      frame-src 
-        https://js.stripe.com;
-      object-src 'none';
-      base-uri 'self';
-      form-action 'self' 
-        https://formspree.io 
-        https://api.emailjs.com;
-      upgrade-insecure-requests;
-    """
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.google-analytics.com https://www.googletagmanager.com; connect-src 'self' https://www.google-analytics.com https://api.stripe.com https://*.netlify.app https://api.emailjs.com; frame-src https://js.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io https://api.emailjs.com; upgrade-insecure-requests;"
     
     # Additional Security Headers
     X-Frame-Options = "SAMEORIGIN"
