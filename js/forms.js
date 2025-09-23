@@ -3,7 +3,7 @@
  * Consolidated hero and contact form functionality
  * Depends on: pricing.js (for getOrderCost function)
  * 
- * @version 2.3.0 - Fixed phone validation to digits only (no formatting characters)
+ * @version 2.4.0 - Fixed premature validation styling with user interaction tracking
  */
 
 // Form utilities
@@ -245,6 +245,19 @@ function handleContactSubmission(form, messageDiv) {
 function initFormValidation(form, messageDiv) {
     const addressField = form.querySelector('input[name="address"]');
     const phoneField = form.querySelector('input[name="phone"]');
+    
+    // Add user interaction tracking to prevent premature validation styling
+    const allFields = form.querySelectorAll('input[required]');
+    allFields.forEach(field => {
+        // Add class after first interaction (input, blur, or focus)
+        const markAsInteracted = () => {
+            field.classList.add('user-interacted');
+        };
+        
+        field.addEventListener('input', markAsInteracted, { once: true });
+        field.addEventListener('blur', markAsInteracted, { once: true });
+        field.addEventListener('focus', markAsInteracted, { once: true });
+    });
     
     // Enhanced address validation
     if (addressField) {

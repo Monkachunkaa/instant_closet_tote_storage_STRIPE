@@ -1,19 +1,4 @@
 /**
- * Calculate the next payment date (30 days from today)
- * @returns {string} Formatted date string
- */
-function getNextPaymentDate() {
-    const nextPaymentDate = new Date();
-    nextPaymentDate.setDate(nextPaymentDate.getDate() + 30);
-    
-    return nextPaymentDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-}
-
-/**
  * Calculate the next payment date in short format (for order summary)
  * @returns {string} Short formatted date string (e.g., "Oct. 20")
  */

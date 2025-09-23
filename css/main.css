@@ -140,12 +140,15 @@ html {
     font-size: 0.9rem;
 }
 
-.form-group input:invalid {
+/* Only show validation states after user interaction */
+.form-group input:not(:placeholder-shown):invalid,
+.form-group input.user-interacted:invalid {
     border-color: #ef4444;
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-.form-group input:valid {
+.form-group input:not(:placeholder-shown):valid,
+.form-group input.user-interacted:valid {
     border-color: #10b981;
 }
 
@@ -161,12 +164,14 @@ html {
     outline: none;
 }
 
-/* Special styling for phone input with auto-formatting */
-.form-group input[type="tel"]:valid {
+/* Special styling for phone input - only after interaction */
+.form-group input[type="tel"]:not(:placeholder-shown):valid,
+.form-group input[type="tel"].user-interacted:valid {
     border-color: #10b981;
 }
 
-.form-group input[type="tel"]:invalid {
+.form-group input[type="tel"]:not(:placeholder-shown):invalid,
+.form-group input[type="tel"].user-interacted:invalid {
     border-color: #ef4444;
 }
 
