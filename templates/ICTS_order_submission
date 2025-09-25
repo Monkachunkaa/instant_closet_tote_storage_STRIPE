@@ -1,0 +1,9 @@
+<div style="font-family: system-ui, sans-serif, Arial; font-size: 16px;">
+
+<p>You've received a new order from your website.</p>
+<p>CONTACT DETAILS:<br>Name: {{name}}<br>Email: {{email}}<br>Phone: {{phone}}<br>Address: {{address}}</p>
+<p>Number of totes needed: {{tote_number}}<br><b>Cost of order: ${{order_cost}}</b><br><br>
+Payment ID: {{payment_id}}<br>
+Subscription ID: {{subscription_id}}</p>
+<p>---<br>This email was sent automatically from your website contact form.</p>
+</div>

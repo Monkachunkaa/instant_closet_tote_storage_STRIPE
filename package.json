@@ -1,10 +1,11 @@
 {
   "name": "instant-closet-tote-storage-functions",
   "version": "1.0.0",
-  "description": "Netlify functions for Stripe payment processing",
+  "description": "Netlify functions for Stripe payment processing and AWS SES email delivery",
   "main": "index.js",
   "dependencies": {
-    "stripe": "^14.25.0"
+    "stripe": "^14.25.0",
+    "aws-sdk": "^2.1490.0"
   },
   "scripts": {
     "build": "echo 'No build step required'"
@@ -13,7 +14,9 @@
     "stripe",
     "payments",
     "netlify",
-    "serverless"
+    "serverless",
+    "aws-ses",
+    "email"
   ],
   "author": "Instant Closet Tote Storage",
   "license": "MIT"

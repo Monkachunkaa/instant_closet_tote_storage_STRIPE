@@ -2,15 +2,11 @@
  * INSTANT CLOSET TOTE STORAGE - MAIN JAVASCRIPT
  * Main functionality and initialization
  * 
- * @version 2.0.0 - Removed unused WebP detection, optimized performance
+ * @version 3.0.0 - Removed EmailJS, now using AWS SES via Netlify Functions
  */
 
-// Initialize EmailJS
-(function() {
-    emailjs.init({
-        publicKey: '3bZXI322cqKC56DBj'
-    });
-})();
+// Note: EmailJS has been replaced with AWS SES + Netlify Functions
+// Email functionality is now handled server-side for better security and reliability
 
 // Note: WebP images are used with <picture> fallbacks in HTML - no JS detection needed
 
@@ -54,6 +50,8 @@ function initHeaderScrollEffect() {
 function initMain() {
     initSmoothScrolling();
     initHeaderScrollEffect();
+    
+    console.log('📧 Main JS loaded - Email system: AWS SES via Netlify Functions');
 }
 
 // Run on DOM content loaded

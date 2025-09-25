@@ -1,9 +1,10 @@
 /**
- * FORM HANDLING - OPTIMIZED VERSION
+ * FORM HANDLING - AWS SES VERSION
+ * Updated form functionality to use AWS SES via Netlify Functions instead of EmailJS
  * Consolidated hero and contact form functionality
  * Depends on: pricing.js (for getOrderCost function)
  * 
- * @version 2.4.0 - Fixed premature validation styling with user interaction tracking
+ * @version 3.0.0 - Migrated from EmailJS to AWS SES + Netlify Functions
  */
 
 // Form utilities
@@ -71,8 +72,72 @@ const FormUtils = {
 };
 
 /**
+ * Send contact form via AWS SES Netlify function
+ * Replaces EmailJS functionality with AWS SES backend
+ * @param {Object} formData - Form data object
+ * @param {number} orderCost - Calculated order cost (if applicable)
+ * @returns {Promise} - Fetch promise for AWS SES submission
+ */
+async function sendContactFormSES(formData, orderCost = 0) {
+    console.log('📧 Sending contact form via AWS SES...');
+    
+    // Prepare data payload for AWS SES function
+    const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        tote_number: formData.tote_number,
+        message: formData.message,
+        order_cost: orderCost > 0 ? orderCost.toFixed(2) : 'Not calculated'
+    };
+    
+    // Send to AWS SES Netlify function
+    const response = await fetch('/.netlify/functions/send-contact-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${errorData.error}`);
+    }
+
+    return response.json();
+}
+
+/**
+ * Send order confirmation email via AWS SES Netlify function
+ * Sends professional receipt to customer and internal notification
+ * @param {Object} orderData - Order confirmation data
+ * @returns {Promise} - Fetch promise for AWS SES order confirmation
+ */
+async function sendOrderConfirmationSES(orderData) {
+    console.log('🧾 Sending order confirmation via AWS SES...');
+    
+    // Send to AWS SES order confirmation function
+    const response = await fetch('/.netlify/functions/send-order-confirmation', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}: ${errorData.error}`);
+    }
+
+    return response.json();
+}
+
+/**
  * Handle form submission routing
- * Determines whether to process as order (Stripe) or contact (EmailJS)
+ * Determines whether to process as order (Stripe) or contact (AWS SES)
  * @param {HTMLFormElement} form - Form element that was submitted
  * @param {HTMLElement} messageDiv - Message container element
  */
@@ -85,14 +150,14 @@ function handleFormSubmission(form, messageDiv) {
         // Hero form = order processing with Stripe payment
         handleOrderSubmission(form, messageDiv);
     } else {
-        // Contact form = direct EmailJS submission
+        // Contact form = direct AWS SES submission
         handleContactSubmission(form, messageDiv);
     }
 }
 
 /**
  * Handle order form submission (hero form)
- * Routes to Stripe payment system
+ * Routes to Stripe payment system, then sends order confirmation via AWS SES
  * @param {HTMLFormElement} form - Order form element
  * @param {HTMLElement} messageDiv - Message container element
  */
@@ -154,12 +219,13 @@ function handleOrderSubmission(form, messageDiv) {
     }
     
     // Route to Stripe payment system (function from stripe-payment.js)
+    // The Stripe payment system will handle calling our order confirmation function
     processOrderSubmission(form, messageDiv);
 }
 
 /**
  * Handle contact form submission (contact page)
- * Sends directly via EmailJS
+ * Sends directly via AWS SES
  * @param {HTMLFormElement} form - Contact form element
  * @param {HTMLElement} messageDiv - Message container element
  */
@@ -201,21 +267,10 @@ function handleContactSubmission(form, messageDiv) {
     // Get order cost if available (for contact forms with tote fields)
     const orderCost = getOrderCost ? getOrderCost(form) : 0;
     
-    // Prepare EmailJS template parameters
-    const templateParams = {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        tote_number: formData.tote_number,
-        message: formData.message,
-        order_cost: orderCost > 0 ? `${orderCost}` : 'Not calculated'
-    };
-    
-    // Send email using EmailJS
-    emailjs.send('honeybee_gmail_service', 'ICTS_lead', templateParams)
+    // Send email using AWS SES
+    sendContactFormSES(formData, orderCost)
         .then(function(response) {
-            console.log('✅ Contact form sent successfully:', response.status);
+            console.log('✅ Contact form sent successfully via AWS SES:', response);
             
             // Show success message
             const successMsg = (formData.address !== 'Not provided' && formData.tote_number !== 'Not specified') 
@@ -227,8 +282,9 @@ function handleContactSubmission(form, messageDiv) {
             // Reset form
             form.reset();
             
-        }, function(error) {
-            console.error('❌ Contact form failed:', error);
+        })
+        .catch(function(error) {
+            console.error('❌ Contact form failed via AWS SES:', error);
             FormUtils.showMessage(messageDiv, '❌ Sorry, there was an error sending your message. Please try again or contact us directly at (828) 455-7793.', 'error');
         })
         .finally(function() {
@@ -393,7 +449,7 @@ function initForms() {
             handleFormSubmission(heroForm, heroMessageDiv);
         });
         initFormValidation(heroForm, heroMessageDiv);
-        console.log('✅ Hero form initialized for order processing');
+        console.log('✅ Hero form initialized for order processing (AWS SES integration)');
     }
     
     // Initialize contact form (contact page)
@@ -406,11 +462,13 @@ function initForms() {
             handleFormSubmission(contactForm, contactMessageDiv);
         });
         initFormValidation(contactForm, contactMessageDiv);
-        console.log('✅ Contact form initialized for EmailJS submission');
+        console.log('✅ Contact form initialized for AWS SES submission');
     }
     
     // Initialize form focus functionality
     initFormFocus();
+    
+    console.log('📧 Form system initialized with AWS SES backend');
 }
 
 // Legacy function exports for backward compatibility
@@ -422,6 +480,10 @@ function showMessage(messageDiv, message, type) {
 function clearMessage(messageDiv) {
     FormUtils.clearMessage(messageDiv);
 }
+
+// Export AWS SES functions for use by Stripe integration
+window.FormUtils = FormUtils;
+window.sendOrderConfirmationSES = sendOrderConfirmationSES;
 
 // Initialize forms on DOM content loaded
 document.addEventListener('DOMContentLoaded', initForms);

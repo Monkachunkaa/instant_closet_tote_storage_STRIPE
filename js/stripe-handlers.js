@@ -4,10 +4,10 @@
  * This module handles real payment processing using Stripe payment intents,
  * subscription creation, success/failure states, and email notifications.
  * 
- * Dependencies: stripe-payment.js, stripe-modal.js, EmailJS
+ * Dependencies: stripe-payment.js, stripe-modal.js, AWS SES via Netlify Functions
  * 
  * @author Stripe Integration Team
- * @version 3.0.0 - Added subscription creation after successful payment
+ * @version 4.0.0 - Updated to use AWS SES instead of EmailJS
  */
 
 /**
@@ -197,7 +197,7 @@ async function createSubscriptionAfterPayment(paymentIntent) {
  * Handle successful payment completion
  * 
  * Coordinates post-payment actions including sending email notifications
- * to both customer and business, then displays success confirmation.
+ * to both customer and business via AWS SES, then displays success confirmation.
  * 
  * @param {Object} paymentIntent - Real Stripe payment intent object
  * @param {string} paymentIntent.id - Unique payment identifier
@@ -213,24 +213,8 @@ async function handlePaymentSuccess(paymentIntent) {
     }
     
     try {
-        // Send email notifications in parallel for better performance
-        const emailPromises = [
-            sendCustomerReceipt(paymentIntent),
-            sendBusinessNotification(paymentIntent)
-        ];
-        
-        // Wait for both emails to complete (or fail)
-        const emailResults = await Promise.allSettled(emailPromises);
-        
-        // Log email results
-        emailResults.forEach((result, index) => {
-            const emailType = index === 0 ? 'customer receipt' : 'business notification';
-            if (result.status === 'fulfilled') {
-                console.log(`✅ ${emailType} sent successfully`);
-            } else {
-                console.warn(`⚠️ ${emailType} failed:`, result.reason);
-            }
-        });
+        // Send order confirmation emails via AWS SES
+        await sendOrderConfirmationEmails(paymentIntent);
         
         // Show success message regardless of email status
         // Payment succeeded, so user should see success even if emails fail
@@ -246,126 +230,60 @@ async function handlePaymentSuccess(paymentIntent) {
 }
 
 /**
- * Send receipt email to customer
+ * Send order confirmation emails via AWS SES
  * 
- * Uses EmailJS to send a formatted receipt to the customer with
- * order details, payment confirmation, and subscription information.
+ * Uses AWS SES Netlify function to send professional receipt to customer
+ * and internal notification to business with order details and subscription info.
  * 
  * @param {Object} paymentIntent - Real Stripe payment intent object
  */
-async function sendCustomerReceipt(paymentIntent) {
+async function sendOrderConfirmationEmails(paymentIntent) {
     if (!window.currentOrderData) {
-        console.error('❌ No order data available for customer receipt');
+        console.error('❌ No order data available for order confirmation');
         return;
     }
     
-    console.log('📧 Sending customer receipt for real payment...');
+    console.log('📧 Sending order confirmation emails via AWS SES...');
     
-    // Format next billing date
-    let nextBillingInfo = 'Your monthly billing will begin in 30 days.';
-    let subscriptionStatus = 'Monthly subscription will be set up automatically.';
-    
-    if (window.currentSubscriptionData) {
-        const nextBillingDate = new Date(window.currentSubscriptionData.next_billing_date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-        nextBillingInfo = `Your next billing date is ${nextBillingDate} for ${window.currentSubscriptionData.monthly_amount}.`;
-        subscriptionStatus = `Monthly subscription active (ID: ${window.currentSubscriptionData.subscription_id}).`;
+    // Format subscription information
+    let subscriptionId = 'Pending setup';
+    if (window.currentSubscriptionData?.subscription_id) {
+        subscriptionId = window.currentSubscriptionData.subscription_id;
     } else if (window.subscriptionCreationFailed) {
-        subscriptionStatus = 'Monthly subscription setup encountered an issue. We will contact you to resolve this.';
-        nextBillingInfo = 'Please check your email for follow-up instructions.';
+        subscriptionId = 'Setup failed - will be resolved manually';
     }
     
-    const receiptData = {
-        to_email: window.currentOrderData.email,
+    // Prepare order confirmation data for AWS SES function
+    const orderConfirmationData = {
         customer_name: window.currentOrderData.name,
+        to_email: window.currentOrderData.email,
         order_id: paymentIntent.id, // Real Stripe payment intent ID
+        subscription_id: subscriptionId,
         amount_paid: (paymentIntent.amount / 100).toFixed(2), // Convert cents to dollars
         tote_quantity: window.currentOrderData.toteNumber,
-        setup_cost: window.currentOrderData.totalCost,
-        monthly_cost: (window.currentOrderData.toteNumber * 10).toFixed(2), // Monthly cost without setup fee
         customer_address: window.currentOrderData.address,
         customer_phone: window.currentOrderData.phone,
         payment_date: new Date().toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }),
-        payment_status: paymentIntent.status.toUpperCase(), // 'SUCCEEDED'
-        subscription_status: subscriptionStatus,
-        next_billing_info: nextBillingInfo,
-        subscription_id: window.currentSubscriptionData?.subscription_id || 'Pending setup'
-    };
-    
-    try {
-        // Use updated customer receipt template (ICTS_customer_receipt)
-        await emailjs.send('honeybee_gmail_service', 'ICTS_customer_receipt', receiptData);
-        console.log('✅ Customer receipt sent successfully for payment:', paymentIntent.id);
-    } catch (error) {
-        console.error('⚠️ Failed to send customer receipt:', error);
-        // Don't throw - payment was successful regardless of email status
-    }
-}
-
-/**
- * Send order notification to business
- * 
- * Uses EmailJS to notify the business of a new REAL paid order with
- * customer details, payment confirmation, and subscription information.
- * 
- * @param {Object} paymentIntent - Real Stripe payment intent object
- */
-async function sendBusinessNotification(paymentIntent) {
-    if (!window.currentOrderData) {
-        console.error('❌ No order data available for business notification');
-        return;
-    }
-    
-    console.log('📧 Sending business notification for real payment...');
-    
-    // Format subscription info for business
-    let subscriptionInfo = 'Monthly subscription setup pending';
-    if (window.currentSubscriptionData) {
-        subscriptionInfo = `Monthly subscription created: ${window.currentSubscriptionData.subscription_id} - Next billing: ${new Date(window.currentSubscriptionData.next_billing_date).toLocaleDateString()}`;
-    } else if (window.subscriptionCreationFailed) {
-        subscriptionInfo = `⚠️ SUBSCRIPTION SETUP FAILED: ${window.subscriptionError} - MANUAL SETUP REQUIRED`;
-    }
-    
-    const businessData = {
-        name: window.currentOrderData.name,
-        email: window.currentOrderData.email,
-        phone: window.currentOrderData.phone,
-        address: window.currentOrderData.address,
-        tote_number: window.currentOrderData.toteNumber,
-        order_cost: window.currentOrderData.totalCost,
-        monthly_cost: (window.currentOrderData.toteNumber * 10).toFixed(2), // Monthly cost without setup fee
-        message: `REAL PAID ORDER WITH SUBSCRIPTION - Payment ID: ${paymentIntent.id}`,
-        payment_status: 'COMPLETED - REAL PAYMENT',
-        payment_id: paymentIntent.id, // Include real Stripe payment ID
-        payment_amount: (paymentIntent.amount / 100).toFixed(2), // Real amount charged
-        subscription_info: subscriptionInfo,
-        subscription_id: window.currentSubscriptionData?.subscription_id || 'Setup pending',
-        customer_id: paymentIntent.customer,
-        order_date: new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
+            day: 'numeric'
         })
     };
     
     try {
-        // Use new order template (ICTS_order) for business notification
-        await emailjs.send('honeybee_gmail_service', 'ICTS_order', businessData);
-        console.log('✅ Business notification sent successfully for payment:', paymentIntent.id);
+        // Use AWS SES function for order confirmation (defined in forms.js)
+        if (typeof window.sendOrderConfirmationSES === 'function') {
+            const result = await window.sendOrderConfirmationSES(orderConfirmationData);
+            console.log('✅ Order confirmation emails sent successfully via AWS SES:', result);
+        } else {
+            console.error('❌ AWS SES order confirmation function not available');
+            throw new Error('Email system not properly initialized');
+        }
+        
     } catch (error) {
-        console.error('⚠️ Failed to send business notification:', error);
+        console.error('⚠️ Failed to send order confirmation emails via AWS SES:', error);
         // Don't throw - payment was successful regardless of email status
+        // We could potentially fall back to a different notification method here
     }
 }
 

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Instant Closet Tote Storage Receipt</title>
+    <!--
+        CUSTOMER RECEIPT EMAIL TEMPLATE
+        For use with EmailJS service: honeybee_gmail_service
+        Template ID: customer_receipt
+        
+        This template creates an attractive, professional receipt email
+        for Instant Closet Tote Storage customers after successful payment.
+        
+        Variables used from EmailJS:
+        - {{to_email}} - Customer email
+        - {{customer_name}} - Customer name
+        - {{order_id}} - Payment intent ID
+        - {{amount_paid}} - Total amount paid
+        - {{tote_quantity}} - Number of totes
+        - {{customer_address}} - Customer address
+        - {{customer_phone}} - Customer phone
+        - {{payment_date}} - Payment date
+    -->
+    <style>
+        /* Reset and base styles for email compatibility */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        /* Main container */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        /* Header section with gray background */
+        .header {
+            background-color: #000;
+            color: #ffffff;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        
+        
+        .logo-container {
+            background-color: #000;
+            padding: 20px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .logo {
+            width: 500px;
+            height: auto;
+            display: block;
+            max-width: 100%;
+        }
+        
+        .company-name {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tagline {
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: 400;
+            color: #ffffff;
+        }
+        
+        .receipt-title {
+            font-size: 24px;
+            font-weight: bold;
+            padding: 15px 25px;
+            background-color: #000;
+            border-radius: 6px;
+            color: #ffffff;
+        }
+        
+        .header-divider {
+            width: 100%;
+            height: 2px;
+            background-color: #ffffff;
+            margin: 20px 0 10px 0;
+        }
+        
+        /* Content sections */
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #F8CF1F;
+            display: inline-block;
+        }
+        
+        /* Order details table */
+        .order-details {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .details-grid {
+            display: table;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .details-row {
+            display: table-row;
+        }
+        
+        .details-label {
+            display: table-cell;
+            padding: 12px 15px 12px 0;
+            font-weight: 600;
+            color: #495057;
+            vertical-align: top;
+            width: 40%;
+        }
+        
+        .details-value {
+            display: table-cell;
+            padding: 12px 0;
+            color: #212529;
+            vertical-align: top;
+        }
+        
+        /* Payment summary */
+        .payment-summary {
+            background: linear-gradient(135deg, #fff3e0 0%, #ffe8cc 100%);
+            border-radius: 8px;
+            padding: 25px;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .total-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e65100;
+            text-align: center;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+        }
+        
+        /* Next steps section */
+        .next-steps {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+            border-radius: 8px;
+            padding: 25px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .next-steps ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .next-steps li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .next-steps li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4caf50;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        /* Contact information */
+        .contact-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .contact-item {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        
+        .contact-item strong {
+            color: #2c3e50;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 30px 40px;
+            text-align: center;
+        }
+        
+        .footer p {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .footer-links {
+            margin-top: 20px;
+        }
+        
+        .footer-links a {
+            color: #F8CF1F;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: 500;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Mobile responsiveness */
+        @media only screen and (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header, .content, .footer {
+                padding: 20px;
+            }
+            
+            .company-name {
+                font-size: 24px;
+            }
+            
+            .receipt-title {
+                font-size: 20px;
+                padding: 12px 12px;
+            }
+            
+            .logo {
+                width: 150px;
+            }
+            
+            .logo-container {
+                padding: 15px;
+            }
+            
+            .details-label, .details-value {
+                display: block;
+                width: 100%;
+                padding: 8px 0;
+            }
+            
+            .details-label {
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            
+            .details-value {
+                margin-bottom: 15px;
+                padding-left: 10px;
+                border-left: 3px solid #F8CF1F;
+            }
+            
+            .total-amount {
+                font-size: 20px;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            
+            .email-container {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="logo-section">
+                <div class="logo-container">
+                    <img src="https://incandescent-wisp-08c04e.netlify.app/images/logo.webp" 
+                         alt="Instant Closet Tote Storage" 
+                         class="logo">
+                </div>
+            </div>
+            <div class="header-divider"></div>
+            <div class="receipt-title">Payment Receipt</div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Customer Information -->
+            <div class="section">
+                <div class="section-title">Customer Information</div>
+                <div class="order-details">
+                    <div class="details-grid">
+                        <div class="details-row">
+                            <div class="details-label">Customer Name:</div>
+                            <div class="details-value">{{customer_name}}</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Email Address:</div>
+                            <div class="details-value">{{to_email}}</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Phone Number:</div>
+                            <div class="details-value">{{customer_phone}}</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Service Address:</div>
+                            <div class="details-value">{{customer_address}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Details -->
+            <div class="section">
+                <div class="section-title">Order Details</div>
+                <div class="order-details">
+                    <div class="details-grid">
+                        <div class="details-row">
+                            <div class="details-label">Order ID:</div>
+                            <div class="details-value">{{order_id}}</div>
+                        </div>
+                        <div class="details-row">
+                          <div class="details-label">Subscription ID:</div>
+                            <div class="details-value">{{subscription_id}}</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Number of Totes:</div>
+                            <div class="details-value">{{tote_quantity}} totes</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Service Type:</div>
+                            <div class="details-value">Monthly Tote Storage Service</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Payment Date:</div>
+                            <div class="details-value">{{payment_date}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Summary -->
+            <div class="section">
+                <div class="section-title">Payment Summary</div>
+                <div class="payment-summary">
+                    <div class="details-grid">
+                        <div class="details-row">
+                            <div class="details-label">Setup Fee:</div>
+                            <div class="details-value">${{amount_paid}}</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Monthly Rate:</div>
+                            <div class="details-value">$10.00 per tote</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Payment Method:</div>
+                            <div class="details-value">Credit/Debit Card</div>
+                        </div>
+                        <div class="details-row">
+                            <div class="details-label">Payment Status:</div>
+                            <div class="details-value"><strong style="color: #27ae60;">✓ COMPLETED</strong></div>
+                        </div>
+                    </div>
+                    <div class="total-amount">
+                        Total Paid: ${{amount_paid}}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Next Steps -->
+            <div class="section">
+                <div class="section-title">What Happens Next?</div>
+                <div class="next-steps">
+                    <ul>
+                        <li>We'll contact you within 24 hours to schedule your first tote delivery</li>
+                        <li>Our team will deliver your clean, professional totes to your address</li>
+                        <li>Fill your totes with items you'd like stored</li>
+                        <li>We'll pick up your filled totes and store them in our secure facility</li>
+                        <li>Access your items anytime by requesting delivery through our service</li>
+                        <li>Monthly billing will begin automatically for ongoing storage</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="section">
+                <div class="section-title">Questions? We're Here to Help!</div>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <strong>Phone:</strong> (828) 455-7793
+                    </div>
+                    <div class="contact-item">
+                        <strong>Email:</strong> customerservice@instantclosettotestorage.com
+                    </div>
+                    <div class="contact-item">
+                        <strong>Business Hours:</strong> Monday - Friday, 9 AM - 6 PM
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Instant Closet Tote Storage</strong></p>
+            <p>Professional storage solutions for modern living</p>
+            <p>This is an automated receipt. Please save this email for your records.</p>
+            
+            <div class="footer-links">
+                <a href="https://www.instantclosettotestorage.com">Visit Our Website</a>
+                <a href="mailto:customerservice@instantclosettotestorage.com">Contact Support</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
