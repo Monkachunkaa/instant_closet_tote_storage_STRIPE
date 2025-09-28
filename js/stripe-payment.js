@@ -12,8 +12,7 @@
  */
 
 // Stripe configuration - Your publishable key from Stripe dashboard
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_51S97oj5Kox27LmidNTlRscpdkrwht2RJeriPo1ncNkAgVg4NPtVkecLWV9UZ8dBpulUR6h21BkAaKhGT1AazcpDD00T7kESfvJ';
-
+const STRIPE_PUBLISHABLE_KEY = 'pk_live_51SBoxC9xIYulwI1j5TlTY1BL15CFQpadGLsDE2ICPN8gDiAl6dQz9GehNsDVCIBEJdcTOKr4L5b8J1ep1f8AeBuu00ZEBOBs6B';
 // Global Stripe instance - initialized on page load
 let stripe = null;
 
