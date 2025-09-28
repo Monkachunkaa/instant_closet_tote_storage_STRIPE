@@ -213,7 +213,7 @@ exports.handler = async (event, context) => {
         <div class="header">
             <div class="logo-section">
                 <div class="logo-container">
-                    <img src="https://incandescent-wisp-08c04e.netlify.app/images/logo.webp" 
+                    <img src="https://instantclosettotestorage.com/images/logo.webp" 
                          alt="Instant Closet Tote Storage" 
                          class="logo">
                 </div>
@@ -276,7 +276,7 @@ exports.handler = async (event, context) => {
     const emailParams = {
       Source: 'Instant Closet Tote Storage <no-reply@instantclosettotestorage.com>', // Professional sender name
       Destination: {
-        ToAddresses: ['jake@honeybeewebdesign.com'] // Your recipient email
+        ToAddresses: ['customerservice@instantclosettotestorage.com'] // Your recipient email
       },
       Message: {
         Subject: {

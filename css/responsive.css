@@ -214,9 +214,9 @@
 
     .cta-buttons {
         justify-content: center;
-        flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        gap: 0.8rem;
+        flex-wrap: wrap;
     }
     
     .btn {
