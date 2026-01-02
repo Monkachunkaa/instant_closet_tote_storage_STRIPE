@@ -1,0 +1,76 @@
+
+/* ==============================================
+   BBB ACCREDITATION BADGE
+   ============================================== */
+
+/* BBB Badge Container */
+.footer-bbb-badge {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+/* BBB Link Styling */
+.bbb-link {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.bbb-link:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+.bbb-link:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+/* BBB Seal Image */
+.bbb-seal-image {
+    width: 7.125rem;
+    height: auto;
+    display: block;
+}
+
+/* BBB Rating Text */
+.bbb-rating-text {
+    display: block;
+    margin-top: 0.25rem;
+}
+
+.bbb-rating {
+    color: #015A75;
+    font-size: 0.625rem;
+    font-weight: bold;
+    font-family: Arial, Helvetica, sans-serif;
+    letter-spacing: 0.5px;
+}
+
+/* BBB Tracking Div (Hidden but accessible) */
+#gpt-passback {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .footer-bbb-badge {
+        margin: 0.75rem 0 1.25rem 0;
+    }
+    
+    .bbb-seal-image {
+        width: 6rem;
+    }
+    
+    .bbb-rating {
+        font-size: 0.5625rem;
+    }
+}

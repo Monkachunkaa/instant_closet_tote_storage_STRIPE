@@ -209,6 +209,25 @@
                         <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.8rem;">Submit Order</button>
                     </form>
                 </div>
+                
+                <!-- BBB Badge - Trust Signal -->
+                <div class="hero-bbb-badge">
+                    <a href="https://www.bbb.org/us/nc/claremont/profile/portable-storage-units/instant-closet-tote-storage-llc-0473-92036655?utm_campaign=bbb_seal&utm_content=Instant%20Closet%20Tote%20Storage%2C%20LLC&utm_medium=website&utm_source=seal_click_92036655" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="bbb-link"
+                       aria-label="View our BBB Business Profile">
+                        <img src="https://m.bbb.org/terminuscontent/dist/img/dynamic-seal/ab-seal-horizontal-blue.svg?tx=w_114" 
+                             alt="BBB Accredited Business" 
+                             class="bbb-seal-image"
+                             loading="eager"
+                             width="135"
+                             height="auto">
+                        <div class="bbb-rating-text">
+                         <!--   <span class="bbb-rating">BBB RATING: A-</span> -->
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
     </section>
@@ -485,6 +504,26 @@
     <!-- Footer -->
     <footer>
         <div class="container">
+            <!-- BBB Badge - Accredited Business A- Rating -->
+            <div class="footer-bbb-badge">
+                <a href="https://www.bbb.org/us/nc/claremont/profile/portable-storage-units/instant-closet-tote-storage-llc-0473-92036655?utm_campaign=bbb_seal&utm_content=Instant%20Closet%20Tote%20Storage%2C%20LLC&utm_medium=website&utm_source=seal_click_92036655" 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   class="bbb-link"
+                   aria-label="View our BBB Business Profile">
+                    <img src="https://m.bbb.org/terminuscontent/dist/img/dynamic-seal/ab-seal-horizontal-blue.svg?tx=w_114" 
+                         alt="BBB Accredited Business - A- Rating" 
+                         class="bbb-seal-image"
+                         loading="lazy"
+                         width="114"
+                         height="auto">
+                    <div class="bbb-rating-text">
+                        <!-- <span class="bbb-rating">BBB RATING: A-</span> -->
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Contact Information -->
             <div class="footer-contact">
                 <a href="mailto:customerservice@instantclosettotestorage.com">customerservice@instantclosettotestorage.com</a>
                 <div class="phone-numbers">
@@ -545,5 +584,20 @@
     <script src="js/stripe-handlers.js"></script>
     <script src="js/animations.js"></script>
     <script src="js/analytics-enhanced.js"></script>
+
+    <!-- BBB Tracking Scripts -->
+    <script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js"></script>
+    <div id="gpt-passback">
+        <script>
+            // BBB tracking initialization
+            window.googletag = window.googletag || {cmd: []};
+            googletag.cmd.push(function() { 
+                googletag.defineSlot('/21848388897/IABBB-Dynamic-Seal', [1, 1], 'gpt-passback')
+                         .addService(googletag.pubads()); 
+                googletag.enableServices(); 
+                googletag.display('gpt-passback'); 
+            });
+        </script>
+    </div>
 </body>
 </html>
